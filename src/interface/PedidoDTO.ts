@@ -4,5 +4,5 @@ export interface PedidoDTO {
     idProduto: number,
     dataPedido: Date,
     valorTotal: number,
-    status: string
+    statusPedido: string
 }

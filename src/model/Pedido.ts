@@ -9,20 +9,20 @@ class Pedido {
   private idProduto: number;
   private dataPedido: Date;
   private valorTotal: number;
-  private status: string;
+  private statusPedido: string;
 
   constructor(
     _idCliente: number,
     _idProduto: number,
     _dataPedido: Date,
     _valorTotal: number,
-    _status: string
+    _statusPedido: string
   ) {
     this.idCliente = _idCliente;
     this.idProduto = _idProduto;
     this.dataPedido = _dataPedido;
     this.valorTotal = _valorTotal;
-    this.status = _status;
+    this.statusPedido = _statusPedido;
   }
 
   public getIdPedido(): number {
@@ -66,18 +66,18 @@ class Pedido {
     this.valorTotal = _valorTotal;
   }
 
-  public getStatus(): string {
-    return this.status;
+  public getStatusPedido(): string {
+    return this.statusPedido;
   }
 
-  public setStatus(_status: string): void {
-    this.status = _status;
+  public setStatusPedido(_statusPedido: string): void {
+    this.statusPedido = _statusPedido;
   }
 
 
   static async cadastrarPedido(pedido: PedidoDTO): Promise<boolean> {
     try {
-      const queryInsertProduto = `INSERT INTO pedido (id_cliente, id_produto, data_pedido, valor_total, status)
+      const queryInsertProduto = `INSERT INTO pedido (id_cliente, id_produto, data_pedido, valor_total, status_pedido)
                                    VALUES
                                    ($1, $2, $3, $4, $5)
                                    RETURNING id_pedido;`;
@@ -87,7 +87,7 @@ class Pedido {
         pedido.idProduto,
         pedido.dataPedido,
         pedido.valorTotal,
-        pedido.status
+        pedido.statusPedido
       ]);
       if (respostaBD.rows.length > 0) {
         console.info(`Pedido cadastrado com sucesso. ID: ${respostaBD.rows[0].idPedido}`);
@@ -111,7 +111,7 @@ class Pedido {
           pedidoBD.id_produto,
           pedidoBD.data_pedido,
           pedidoBD.valor_total,
-          pedidoBD.status
+          pedidoBD.status_pedido
         );
 
         novoPedido.setIdPedido(pedidoBD.idPedido);
@@ -138,7 +138,7 @@ class Pedido {
           respostaBD.rows[0].id_produto,
           respostaBD.rows[0].data_pedido,
           respostaBD.rows[0].valor_total,
-          respostaBD.rows[0].status
+          respostaBD.rows[0].status_pedido
         );
 
         novoPedido.setIdPedido(respostaBD.rows[0].id_pedido);
