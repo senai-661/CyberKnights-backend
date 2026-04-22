@@ -24,10 +24,21 @@ CREATE TABLE Produto (
     disponibilidade VARCHAR (12) NOT NULL
 );
 
-UPDATE produto SET cod_produto = nextval('seq_cod_produto') WHERE cod_produto IS NULL;
-UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido') WHERE cod_pedido IS NULL;
 
 CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
+
+
+
+ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
+ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
+
+
+
+UPDATE produto SET cod_produto = nextval('seq_cod_produto');
+UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
+
+
 
 CREATE OR REPLACE FUNCTION gerar_cod_produto()
 RETURNS TRIGGER AS $$
@@ -39,6 +50,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
 DROP TRIGGER IF EXISTS trigger_cod_produto ON produto;
 
 CREATE TRIGGER trigger_cod_produto
@@ -46,11 +59,7 @@ BEFORE INSERT ON produto
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_produto();
 
-ALTER TABLE produto
-ALTER COLUMN cod_produto SET NOT NULL;
 
-
-CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
 
 CREATE OR REPLACE FUNCTION gerar_cod_pedido()
 RETURNS TRIGGER AS $$
@@ -62,6 +71,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+
 DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
 
 CREATE TRIGGER trigger_cod_pedido
@@ -69,8 +80,10 @@ BEFORE INSERT ON pedido
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_pedido();
 
-ALTER TABLE pedido
-ALTER COLUMN cod_pedido SET NOT NULL;
+
+
+ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
+ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
 
 
 INSERT INTO Cliente (nome, endereco, telefone, cpf) 
