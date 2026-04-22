@@ -6,17 +6,20 @@ const database = new DatabaseModel().pool;
 class Cliente {
   private idCliente: number = 0;
   private nome: string;
+  private email: string;
   private endereco: string;
   private telefone: number;
   private cpf: number;
 
   constructor(
     _nome: string,
+    _email: string,
     _endereco: string,
     _telefone: number,
     _cpf: number
   ) {
     this.nome = _nome;
+    this.email = _email;
     this.endereco = _endereco;
     this.telefone = _telefone;
     this.cpf = _cpf;
@@ -37,6 +40,14 @@ class Cliente {
   public setNome(_nome: string): void {
     this.nome = _nome;
   }
+
+  public getEmail(): string {
+    return this.email;
+  }
+  public setEmail(_email: string): void {
+    this.email = _email;
+  }
+
   public getEndereco(): string {
     return this.endereco;
   }
@@ -94,6 +105,7 @@ class Cliente {
       respostaBD.rows.forEach((clienteBD) => {
         const novoCliente: Cliente = new Cliente(
           clienteBD.nome.toUpperCase(),
+          clienteBD.email.toUpperCase(),
           clienteBD.endereco.toUpperCase(),
           clienteBD.telefone,
           clienteBD.cpf,
@@ -120,6 +132,7 @@ class Cliente {
 
         const novoCliente: Cliente = new Cliente(
           respostaBD.rows[0].nome.toUpperCase(),
+          respostaBD.rows[0].email.toUpperCase(),
           respostaBD.rows[0].endereco.toUpperCase(),
           respostaBD.rows[0].telefone,
           respostaBD.rows[0].cpf
