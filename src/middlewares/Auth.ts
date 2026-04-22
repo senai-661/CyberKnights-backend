@@ -18,7 +18,7 @@ export class Auth {
     static async validacaoUsuario(req: Request, res: Response): Promise<any> {
         const { email, senha } = req.body;
 
-        // ✅ corrigido (sem vírgula extra)
+        
         const querySelectUser = `
             SELECT id_usuario, nome, email, senha 
             FROM usuario 
