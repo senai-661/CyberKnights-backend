@@ -2,6 +2,7 @@ import express from "express";
 import ClienteController from "./controller/ClienteController.js";
 import PedidoController from "./controller/PedidoController.js";
 import ProdutoController from "./controller/ProdutoController.js";
+import { Auth } from './middlewares/Auth.js';
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.post(`/api/pedido`, PedidoController.novo);
 router.get(`/api/produto`, ProdutoController.todos);
 router.post(`/api/produto`, ProdutoController.novo);
 router.get(`/api/produto/:idProduto`, ProdutoController.id);
+router.post('/api/login', Auth.validacaoUsuario);
 
 
 

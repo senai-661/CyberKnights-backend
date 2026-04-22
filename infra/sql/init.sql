@@ -23,7 +23,13 @@ CREATE TABLE Produto (
     preco DECIMAL (10,2) NOT NULL,
     disponibilidade VARCHAR (12) NOT NULL
 );
-
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario SERIAL,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    senha VARCHAR(100) NOT NULL,
+    role VARCHAR(50) NOT NULL
+);
 UPDATE produto SET cod_produto = nextval('seq_cod_produto') WHERE cod_produto IS NULL;
 UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido') WHERE cod_pedido IS NULL;
 
@@ -111,3 +117,14 @@ VALUES
 (8, 7, '2026-02-25', 8.50, 'entregue'),
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
+
+INSERT INTO usuarios (nome, email, senha, role) 
+VALUES 
+('Maria Souza', 'maria@email.com', 'senha123', 'usuario'),
+('Carlos Lima', 'carlos@email.com', 'abc123', 'usuario'),
+('Ana Costa', 'ana@email.com', 'senha456', 'admin'),
+( 'Jimin','jikook@email.com','junkook','usuario'),
+( 'Yoongi','choki@email.com','agust-d','usuario'),
+( 'J-Hope','hope@email.com','mange','usuario'),
+( 'Jungkook','jungmin@email.com','jimin','usuario'),
+('adimin','admin@email.com','admin','admin');
