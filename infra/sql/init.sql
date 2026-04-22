@@ -1,6 +1,7 @@
 CREATE TABLE Cliente (
     id_cliente INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome VARCHAR (80) NOT NULL,
+    email VARCHAR (100) NOT NULL UNIQUE,
     endereco VARCHAR (100) NOT NULL,
     telefone VARCHAR (20) NOT NULL,
     cpf VARCHAR (11)
@@ -8,8 +9,8 @@ CREATE TABLE Cliente (
 
 CREATE TABLE Pedido (
     id_pedido INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	id_cliente INT NOT NULL,
-	id_produto INT NOT NULL,
+id_cliente INT NOT NULL,
+id_produto INT NOT NULL,
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
     status VARCHAR (15) NOT NULL,
@@ -43,18 +44,18 @@ AFTER INSERT ON Produto
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_produto();
 
-INSERT INTO Cliente (nome, endereco, telefone, cpf) 
+INSERT INTO Cliente (nome, email, endereco, telefone, cpf)
 VALUES
-('Ana Souza', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
-('Carlos Mendes', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
-('Juliana Lima', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
-('Marcos Oliveira', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
-('Fernanda Rocha', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
-('Ricardo Alves', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
-('Patrícia Gomes', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
-('Lucas Ferreira', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
-('Camila Santos', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
-('Bruno Costa', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
+('Ana Souza','ana@email.com','Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
+('Carlos Mendes', 'carlos@email.com', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
+('Juliana Lima', 'juliana@email.com', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
+('Marcos Oliveira', 'marcos@email.com', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
+('Fernanda Rocha', 'fernanda@email.com', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
+('Ricardo Alves', 'ricardo@email.com', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
+('Patrícia Gomes', 'patricia@email.com', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
+('Lucas Ferreira', 'lucas@email.com', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
+('Camila Santos', 'camila@email.com', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
+('Bruno Costa', 'bruno@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 INSERT INTO Produto (nome_produto, preco, disponibilidade)
 VALUES
@@ -81,3 +82,25 @@ VALUES
 (8, 7, '2026-02-25', 8.50, 'entregue'),
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
+
+
+CREATE TABLE Usuario (
+    id_usuario INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(80) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL DEFAULT 'maga@2026'
+);
+
+INSERT INTO Usuario (nome, email, senha)
+VALUES
+('Ana Souza','ana@email.com', 'maga@2026'),
+('Carlos Mendes', 'carlos@email.com', 'maga@2026'),
+('Juliana Lima', 'juliana@email.com', 'maga@2026'),
+('Marcos Oliveira', 'marcos@email.com', 'maga@2026'),
+('Fernanda Rocha', 'fernanda@email.com', 'maga@2026'),
+('Ricardo Alves', 'ricardo@email.com', 'maga@2026'),
+('Patrícia Gomes', 'patricia@email.com', 'maga@2026'),
+('Lucas Ferreira', 'lucas@email.com', 'maga@2026'),
+('Camila Santos', 'camila@email.com', 'maga@2026'),
+('Bruno Costa', 'bruno@email.com', 'maga@2026');
+
