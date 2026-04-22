@@ -133,7 +133,7 @@ class Cliente {
 
         const novoCliente: Cliente = new Cliente(
           respostaBD.rows[0].nome.toUpperCase(),
-          respostaBD.rows[0].nome,
+          respostaBD.rows[0].email,
           respostaBD.rows[0].endereco.toUpperCase(),
           respostaBD.rows[0].telefone,
           respostaBD.rows[0].cpf
