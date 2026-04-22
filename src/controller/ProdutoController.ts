@@ -43,4 +43,4 @@ class ProdutoController extends Produto {
     }
 }
 
-export default ProdutoController;
+export default ProdutoController; 
