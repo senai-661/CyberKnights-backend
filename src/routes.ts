@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 });
 
 router.get(`/api/cliente`, ClienteController.todos);
-router.post("/api/cliente", ClienteController.novo);
+router.post(`/api/cliente`, ClienteController.novo);
 router.get(`/api/cliente/:idCliente`, ClienteController.id);
 router.get(`/api/pedido`, PedidoController.todos);
 router.get(`/api/pedido/:idPedido`, PedidoController.id);
