@@ -3,6 +3,13 @@ import jwt from 'jsonwebtoken';
 import { type Request, type Response, type NextFunction } from 'express';
 import { DatabaseModel } from '../model/DatabaseModel.js';
 
+export function Authreq(req: Request, res: Response, next: NextFunction) {
+  console.log("HEADERS:", req.headers);
+  console.log("AUTH:", req.headers.authorization);
+
+  next();
+}
+
 // palavra secreta
 const SECRET = 'lanches-maga';
 // pool de conexão ao banco de dados
