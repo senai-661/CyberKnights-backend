@@ -1,8 +1,16 @@
+CREATE TABLE Produto (
+    id_produto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_produto VARCHAR (80) NOT NULL,
+    preco DECIMAL (10,2) NOT NULL,
+    disponibilidade VARCHAR (12) NOT NULL
+);
+
 CREATE TABLE Cliente (
     id_cliente INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome VARCHAR (80) NOT NULL,
     endereco VARCHAR (100) NOT NULL,
     telefone VARCHAR (20) NOT NULL,
+    status_cliente BOOLEAN,
     cpf VARCHAR (11)
 );
 
@@ -17,87 +25,13 @@ CREATE TABLE Pedido (
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
-CREATE TABLE Produto (
-    id_produto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome_produto VARCHAR (80) NOT NULL,
-    preco DECIMAL (10,2) NOT NULL,
-    disponibilidade VARCHAR (12) NOT NULL
+CREATE TABLE IF NOT EXISTS usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user'
 );
-
-
-CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
-CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
-
-
-
-ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
-ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
-
-
-
-UPDATE produto SET cod_produto = nextval('seq_cod_produto');
-UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
-
-
-
-CREATE OR REPLACE FUNCTION gerar_cod_produto()
-RETURNS TRIGGER AS $$
-BEGIN
-   IF NEW.cod_produto IS NULL THEN
-      NEW.cod_produto := nextval('seq_cod_produto');
-   END IF;
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-DROP TRIGGER IF EXISTS trigger_cod_produto ON produto;
-
-CREATE TRIGGER trigger_cod_produto
-BEFORE INSERT ON produto
-FOR EACH ROW
-EXECUTE FUNCTION gerar_cod_produto();
-
-
-
-CREATE OR REPLACE FUNCTION gerar_cod_pedido()
-RETURNS TRIGGER AS $$
-BEGIN
-   IF NEW.cod_pedido IS NULL THEN
-      NEW.cod_pedido := nextval('seq_cod_pedido');
-   END IF;
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
-
-CREATE TRIGGER trigger_cod_pedido
-BEFORE INSERT ON pedido
-FOR EACH ROW
-EXECUTE FUNCTION gerar_cod_pedido();
-
-
-
-ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
-ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
-
-
-INSERT INTO Cliente (nome, endereco, telefone, cpf) 
-VALUES
-('Ana Souza', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
-('Carlos Mendes', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
-('Juliana Lima', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
-('Marcos Oliveira', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
-('Fernanda Rocha', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
-('Ricardo Alves', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
-('Patrícia Gomes', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
-('Lucas Ferreira', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
-('Camila Santos', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
-('Bruno Costa', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 INSERT INTO Produto (nome_produto, preco, disponibilidade)
 VALUES
@@ -112,6 +46,19 @@ VALUES
 ('Hot Dog Especial', 17.50, 'disponível'),
 ('Combo Família', 79.90, 'disponível');
 
+INSERT INTO Cliente (nome, endereco, telefone, cpf) 
+VALUES
+('Ana Souza', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
+('Carlos Mendes', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
+('Juliana Lima', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
+('Marcos Oliveira', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
+('Fernanda Rocha', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
+('Ricardo Alves', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
+('Patrícia Gomes', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
+('Lucas Ferreira', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
+('Camila Santos', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
+('Bruno Costa', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
+
 INSERT INTO Pedido (id_cliente, id_produto, data_pedido, valor_total, status)
 VALUES
 (1, 1, '2026-02-20', 18.90, 'entregue'),
@@ -124,3 +71,6 @@ VALUES
 (8, 7, '2026-02-25', 8.50, 'entregue'),
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
+
+INSERT INTO usuario (nome, email, senha, role)
+VALUES ('Admin', 'admin@email.com', '1234', 'admin');

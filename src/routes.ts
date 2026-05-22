@@ -2,7 +2,7 @@ import express from "express";
 import ClienteController from "./controller/ClienteController.js";
 import PedidoController from "./controller/PedidoController.js";
 import ProdutoController from "./controller/ProdutoController.js";
-import { Auth } from "./middleware/Auth.js";
+import { Auth } from "./middlewares/Auth.js";
 import type { Request, Response, NextFunction } from "express";
 
 const router = express.Router();

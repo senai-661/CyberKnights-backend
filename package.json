@@ -4,7 +4,9 @@
   "description": "Link para sprints\r - https://senai-661.notion.site/Sprint-s-Projeto-em-grupo-2f55d25a87a18004b223ffe0bf47330a?source=copy_link",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon",
+    "start": "node --loader ts-node/esm ./src/app.ts"
   },
   "repository": {
     "type": "git",
@@ -35,5 +37,8 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.19.0"
+  },
+  "directories": {
+    "doc": "docs"
   }
 }
