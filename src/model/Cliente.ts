@@ -74,13 +74,14 @@ class Cliente {
 
    static async cadastrarCliente(cliente: ClienteDTO): Promise<boolean> {
     try {
-      const queryInsertCliente = `INSERT INTO cliente (nome, endereco, telefone, cpf)
+      const queryInsertCliente = `INSERT INTO cliente (nome, email, endereco, telefone, cpf)
                                 VALUES
-                                ($1, $2, $3, $4)
+                                ($1, $2, $3, $4, $5)
                                 RETURNING id_cliente;`;
 
       const respostaBD = await database.query(queryInsertCliente, [
         cliente.nome.toUpperCase(),
+        cliente.email,
         cliente.endereco.toUpperCase(),
         cliente.telefone,
         cliente.cpf

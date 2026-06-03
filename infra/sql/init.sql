@@ -25,26 +25,73 @@ CREATE TABLE Produto (
     disponibilidade VARCHAR (12) NOT NULL
 );
 
-ALTER TABLE Produto
-ADD COLUMN cod_produto VARCHAR(10) UNIQUE;
 
-ALTER TABLE Pedido
-ADD COLUMN cod_pedido VARCHAR(15) UNIQUE;
+CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
+
+
+
+ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
+ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
+
+
+
+UPDATE produto SET cod_produto = nextval('seq_cod_produto');
+UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
+
+
 
 CREATE OR REPLACE FUNCTION gerar_cod_produto()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.cod_produto := 'PRD' || LPAD(NEW.id_produto::TEXT, 3, '0');
-    RETURN NEW;
+   IF NEW.cod_produto IS NULL THEN
+      NEW.cod_produto := nextval('seq_cod_produto');
+   END IF;
+   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_cod_produto
-AFTER INSERT ON Produto
+
+
+DROP TRIGGER IF EXISTS trigger_cod_produto ON produto;
+
+CREATE TRIGGER trigger_cod_produto
+BEFORE INSERT ON produto
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_produto();
 
+<<<<<<< HEAD
 INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
+=======
+
+
+CREATE OR REPLACE FUNCTION gerar_cod_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+   IF NEW.cod_pedido IS NULL THEN
+      NEW.cod_pedido := nextval('seq_cod_pedido');
+   END IF;
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
+
+CREATE TRIGGER trigger_cod_pedido
+BEFORE INSERT ON pedido
+FOR EACH ROW
+EXECUTE FUNCTION gerar_cod_pedido();
+
+
+
+ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
+ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
+
+
+INSERT INTO Cliente (nome, endereco, telefone, cpf) 
+>>>>>>> 5ca21620b5ba930141d4b7fe1b64ddbb9d498701
 VALUES
 ('Ana Souza','ana@email.com','Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
 ('Carlos Mendes', 'carlos@email.com', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
