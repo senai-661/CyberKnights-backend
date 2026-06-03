@@ -13,13 +13,13 @@ class PedidoController extends Pedido {
                 return res.status(200).json([]);
             }
 
-            const payload = listaPedido.map((p) => ({
-                idPedido: p.getIdPedido(),
-                idCliente: p.getIdCliente(),
-                idProduto: p.getIdProduto(),
-                dataPedido: p.getDataPedido(),
-                valorTotal: p.getValorTotal(),
-                statusPedido: p.getStatusPedido(),
+            const payload = listaPedido.map((p: any) => ({
+                idPedido: typeof p.getIdPedido === 'function' ? p.getIdPedido() : (p.id_pedido ?? p.idPedido ?? null),
+                idCliente: typeof p.getIdCliente === 'function' ? p.getIdCliente() : (p.id_cliente ?? p.idCliente ?? null),
+                idProduto: typeof p.getIdProduto === 'function' ? p.getIdProduto() : (p.id_produto ?? p.idProduto ?? null),
+                dataPedido: typeof p.getDataPedido === 'function' ? p.getDataPedido() : (p.data_pedido ?? p.dataPedido ?? null),
+                valorTotal: typeof p.getValorTotal === 'function' ? p.getValorTotal() : (p.valor_total ?? p.valorTotal ?? 0),
+                statusPedido: typeof p.getStatusPedido === 'function' ? p.getStatusPedido() : (p.status_pedido ?? p.statusPedido ?? ""),
             }));
 
             console.log("Enviando payload pedidos:", JSON.stringify(payload[0]));
