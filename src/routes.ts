@@ -24,8 +24,12 @@ router.post(`/api/cliente`, ClienteController.novo);
 router.get(`/api/cliente/:idCliente`, ClienteController.id);
 
 router.get(`/api/pedido`, PedidoController.todos);
+<<<<<<< HEAD
 router.get(`/api/pedido/baratos`, PedidoController.listarPedidoBaixo);
 router.get(`/api/pedido/completos`, PedidoController.listarPedidoCompleto); 
+=======
+router.get("/api/pedido/detalhado", PedidoController.detalhados);
+>>>>>>> 37b08c0054bb16a52f1f4a04fcf4cb2958614fdf
 router.get(`/api/pedido/:idPedido`, PedidoController.id);
 router.post(`/api/pedido`, PedidoController.novo);
 

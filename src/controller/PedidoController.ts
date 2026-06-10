@@ -221,6 +221,19 @@ class PedidoController extends Pedido {
             return res.status(500).json({ mensagem: "Erro ao buscar pedidos completos." });
         }
     }
+
+    static async detalhados(req: Request, res: Response): Promise<Response> {
+    try {
+        const pedidos = await Pedido.listarPedidosDetalhados();
+
+        return res.status(200).json(pedidos);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            mensagem: "Erro ao listar pedidos detalhados."
+        });
+    }
+}
 }
 
 export default PedidoController;
