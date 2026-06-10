@@ -48,6 +48,7 @@ class Pedido {
   public setIdProduto(_idProduto: number): void {
     this.idProduto = _idProduto;
   }
+
   public getDataPedido(): Date {
     return this.dataPedido;
   }
@@ -55,8 +56,6 @@ class Pedido {
   public setDataPedido(_dataPedido: Date): void {
     this.dataPedido = _dataPedido;
   }
-
-
 
   public getValorTotal(): number {
     return this.valorTotal;
@@ -74,7 +73,6 @@ class Pedido {
     this.statusPedido = _statusPedido;
   }
 
-
   static async cadastrarPedido(pedido: PedidoDTO): Promise<boolean> {
     try {
       const queryInsertProduto = `INSERT INTO pedido (id_cliente, id_produto, data_pedido, valor_total, status_pedido)
@@ -89,6 +87,7 @@ class Pedido {
         pedido.valorTotal,
         pedido.statusPedido
       ]);
+
       if (respostaBD.rows.length > 0) {
         console.info(`Pedido cadastrado com sucesso. ID: ${respostaBD.rows[0].idPedido}`);
         return true;
@@ -99,10 +98,11 @@ class Pedido {
       return false;
     }
   }
+
   static async listarPedido(): Promise<Array<Pedido> | null> {
     try {
       let listaDePedido: Array<Pedido> = [];
-      const querySelectPedido = `SELECT * FROM pedido ORDER BY data_pedido DESC;`;
+      const querySelectPedido = `SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
       const respostaBD = await database.query(querySelectPedido);
 
       respostaBD.rows.forEach((pedidoBD) => {
@@ -114,7 +114,7 @@ class Pedido {
           pedidoBD.status_pedido
         );
 
-        novoPedido.setIdPedido(pedidoBD.idPedido);
+        novoPedido.setIdPedido(pedidoBD.id_pedido); 
 
         listaDePedido.push(novoPedido);
       });
@@ -122,32 +122,28 @@ class Pedido {
       return listaDePedido;
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
-
-
       return null;
     }
   }
 
-       static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
+  static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
     try {
       const querySelectPedido = `SELECT * FROM pedido WHERE id_pedido=$1;`;
       const respostaBD = await database.query(querySelectPedido, [idPedido]);
 
-        const novoPedido: Pedido = new Pedido(
-          respostaBD.rows[0].id_cliente,
-          respostaBD.rows[0].id_produto,
-          respostaBD.rows[0].data_pedido,
-          respostaBD.rows[0].valor_total,
-          respostaBD.rows[0].status_pedido
-        );
+      const novoPedido: Pedido = new Pedido(
+        respostaBD.rows[0].id_cliente,
+        respostaBD.rows[0].id_produto,
+        respostaBD.rows[0].data_pedido,
+        respostaBD.rows[0].valor_total,
+        respostaBD.rows[0].status_pedido
+      );
 
-        novoPedido.setIdPedido(respostaBD.rows[0].id_pedido);
+      novoPedido.setIdPedido(respostaBD.rows[0].id_pedido);
 
       return novoPedido;
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
-
-
       return null;
     }
   }
