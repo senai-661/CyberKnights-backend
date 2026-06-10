@@ -126,6 +126,20 @@ class Pedido {
     }
   }
 
+  static async listarPedidosDetalhados() {
+  try {
+    const query = `
+      SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
+
+    const respostaBD = await database.query(query);
+
+    return respostaBD.rows;
+  } catch (error) {
+    console.error(`Erro na consulta ao banco de dados. ${error}`);
+    return null;
+  }
+}
+
   static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
     try {
       const querySelectPedido = `SELECT * FROM pedido WHERE id_pedido=$1;`;
