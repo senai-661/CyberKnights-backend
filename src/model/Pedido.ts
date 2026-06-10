@@ -102,7 +102,7 @@ class Pedido {
   static async listarPedido(): Promise<Array<Pedido> | null> {
     try {
       let listaDePedido: Array<Pedido> = [];
-      const querySelectPedido = `SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
+      const querySelectPedido = `SELECT * FROM pedido ORDER BY data_pedido DESC;`;
       const respostaBD = await database.query(querySelectPedido);
 
       respostaBD.rows.forEach((pedidoBD) => {
@@ -114,7 +114,7 @@ class Pedido {
           pedidoBD.status_pedido
         );
 
-        novoPedido.setIdPedido(pedidoBD.id_pedido); 
+        novoPedido.setIdPedido(pedidoBD.id_pedido); // ✅ corrigido
 
         listaDePedido.push(novoPedido);
       });
@@ -125,6 +125,20 @@ class Pedido {
       return null;
     }
   }
+
+  static async listarPedidosDetalhados() {
+  try {
+    const query = `
+      SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
+
+    const respostaBD = await database.query(query);
+
+    return respostaBD.rows;
+  } catch (error) {
+    console.error(`Erro na consulta ao banco de dados. ${error}`);
+    return null;
+  }
+}
 
   static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
     try {
