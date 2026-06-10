@@ -74,3 +74,76 @@ VALUES
 
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
+
+--SPRINT 11 - CRIANDO A VIEW  PEDIDOS COMPLETOS
+
+
+--essa é a view criada 
+
+CREATE VIEW vw_pedidos_completos AS
+SELECT
+    p.id_pedido,
+    c.nome AS nome_cliente,
+    c.telefone,
+    pr.nome_produto,
+    pr.preco AS valor_unitario,
+    p.data_pedido,
+    p.valor_total,
+    p.status
+FROM pedido p
+INNER JOIN cliente c  ON p.id_cliente = c.id_cliente
+INNER JOIN produto pr ON p.id_produto = pr.id_produto;
+
+
+
+-- consultando a view (pois ele só funciona com SELECT)--
+SELECT *
+FROM vw_pedidos_completos;
+
+
+
+--Mostrar apenas nome do produto e o valor total--
+SELECT
+    nome_produto,
+    valor_total
+FROM vw_pedidos_completos;
+
+
+
+--Mostrar o os pedidos acima de 20.00 --
+SELECT *
+FROM vw_pedidos_completos
+WHERE valor_total > 20.00;
+
+
+
+--Ordenar pelo maior valor total em pedidos
+SELECT *
+FROM vw_pedidos_completos
+ORDER BY valor_total DESC;
+
+
+
+--Mostrar os pedidos entregue --
+SELECT *
+FROM vw_pedidos_completos
+WHERE status = 'entregue';
+
+
+
+
+--Uma view com pedidos completos baixos 
+CREATE VIEW vw_pedidos_completos_baixo AS
+SELECT
+    pr.nome_produto,
+    pr.preco,
+    p.valor_total
+FROM pedido p
+INNER JOIN produto pr ON p.id_produto = pr.id_produto
+WHERE pr.preco <= 10;
+
+
+--Seleciona pedidos completos baixos
+
+SELECT *
+FROM vw_pedidos_completos_baixo;

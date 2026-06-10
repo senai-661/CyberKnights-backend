@@ -24,6 +24,8 @@ router.post(`/api/cliente`, ClienteController.novo);
 router.get(`/api/cliente/:idCliente`, ClienteController.id);
 
 router.get(`/api/pedido`, PedidoController.todos);
+router.get(`/api/pedido/baratos`, PedidoController.listarPedidoBaixo);
+router.get(`/api/pedido/completos`, PedidoController.listarPedidoCompleto); 
 router.get(`/api/pedido/:idPedido`, PedidoController.id);
 router.post(`/api/pedido`, PedidoController.novo);
 

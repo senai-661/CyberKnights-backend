@@ -45,3 +45,13 @@
     at async validacaoUsuario (file:///C:/Users/48393671833/Desktop/workspace/Sprint-back-front/CyberKnights-backend/src/middlewares/Auth.ts:45:33)
 [2026-05-22T12:49:55.283Z] LOGIN ATTEMPT - email=admin@email.com
 [2026-05-22T12:52:30.139Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-05-22T16:14:45.370Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-05-22T17:15:41.935Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-05-22T18:20:11.329Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T11:17:48.564Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T12:29:30.477Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T14:20:08.067Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T16:08:47.502Z] LOGIN ATTEMPT - email=admin@email
+[2026-06-10T16:11:14.190Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T17:47:11.685Z] LOGIN ATTEMPT - email=admin@email.com
+[2026-06-10T18:56:18.485Z] LOGIN ATTEMPT - email=admin@email.com
