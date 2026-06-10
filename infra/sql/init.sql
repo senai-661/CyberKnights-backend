@@ -60,38 +60,7 @@ BEFORE INSERT ON produto
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_produto();
 
-<<<<<<< HEAD
 INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
-=======
-
-
-CREATE OR REPLACE FUNCTION gerar_cod_pedido()
-RETURNS TRIGGER AS $$
-BEGIN
-   IF NEW.cod_pedido IS NULL THEN
-      NEW.cod_pedido := nextval('seq_cod_pedido');
-   END IF;
-   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
-
-CREATE TRIGGER trigger_cod_pedido
-BEFORE INSERT ON pedido
-FOR EACH ROW
-EXECUTE FUNCTION gerar_cod_pedido();
-
-
-
-ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
-ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
-
-
-INSERT INTO Cliente (nome, endereco, telefone, cpf) 
->>>>>>> 5ca21620b5ba930141d4b7fe1b64ddbb9d498701
 VALUES
 ('Ana Souza','ana@email.com','Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
 ('Carlos Mendes', 'carlos@email.com', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
