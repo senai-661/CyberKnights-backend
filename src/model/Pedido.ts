@@ -75,12 +75,10 @@ class Pedido {
 
   static async cadastrarPedido(pedido: PedidoDTO): Promise<boolean> {
     try {
-      const queryInsertProduto = `INSERT INTO pedido (id_cliente, id_produto, data_pedido, valor_total, status_pedido)
-                                   VALUES
-                                   ($1, $2, $3, $4, $5)
-                                   RETURNING id_pedido;`;
+      const queryInsertPedido = `
+      CALL sp_cadastrar_pedido($1, $2, $3, $4, $5);`;
 
-      const respostaBD = await database.query(queryInsertProduto, [
+      await database.query(queryInsertPedido, [
         pedido.idCliente,
         pedido.idProduto,
         pedido.dataPedido,
@@ -88,11 +86,9 @@ class Pedido {
         pedido.statusPedido
       ]);
 
-      if (respostaBD.rows.length > 0) {
-        console.info(`Pedido cadastrado com sucesso. ID: ${respostaBD.rows[0].idPedido}`);
-        return true;
-      }
-      return false;
+      console.info("Pedido cadastrado com sucesso.");
+      return true;
+
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
       return false;
@@ -127,18 +123,18 @@ class Pedido {
   }
 
   static async listarPedidosDetalhados() {
-  try {
-    const query = `
+    try {
+      const query = `
       SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
 
-    const respostaBD = await database.query(query);
+      const respostaBD = await database.query(query);
 
-    return respostaBD.rows;
-  } catch (error) {
-    console.error(`Erro na consulta ao banco de dados. ${error}`);
-    return null;
+      return respostaBD.rows;
+    } catch (error) {
+      console.error(`Erro na consulta ao banco de dados. ${error}`);
+      return null;
+    }
   }
-}
 
   static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
     try {
