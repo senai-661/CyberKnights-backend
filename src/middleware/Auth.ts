@@ -42,7 +42,7 @@ export class Auth {
         const { email, senha } = req.body;
 
         // query para validar email e senha informados pelo cliente
-        const querySelectUser = `SELECT id_usuario, nome, email, senha FROM usuarios WHERE email=$1 AND senha=$2;`;
+        const querySelectUser = `SELECT id_usuario, nome, email, senha FROM usuario WHERE email=$1 AND senha=$2;`;
 
         try {
             // faz a requisição ao banco de dados

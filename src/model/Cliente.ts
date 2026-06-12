@@ -44,6 +44,7 @@ class Cliente {
   public getEmail(): string {
     return this.email;
   }
+
   public setEmail(_email: string): void {
     this.email = _email;
   }
@@ -65,19 +66,21 @@ class Cliente {
   }
 
   public getCpf(): number {
-    return this.cpf
+    return this.cpf;
   }
 
   public setCpf(_cpf: number): void {
     this.cpf = _cpf;
   }
 
-   static async cadastrarCliente(cliente: ClienteDTO): Promise<boolean> {
+  // ✅ CREATE
+  static async cadastrarCliente(cliente: ClienteDTO): Promise<boolean> {
     try {
-      const queryInsertCliente = `INSERT INTO cliente (nome, email, endereco, telefone, cpf)
-                                VALUES
-                                ($1, $2, $3, $4, $5)
-                                RETURNING id_cliente;`;
+      const queryInsertCliente = `
+        INSERT INTO cliente (nome, email, endereco, telefone, cpf)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id_cliente;
+      `;
 
       const respostaBD = await database.query(queryInsertCliente, [
         cliente.nome.toUpperCase(),
@@ -86,10 +89,14 @@ class Cliente {
         cliente.telefone,
         cliente.cpf
       ]);
+
       if (respostaBD.rows.length > 0) {
-        console.info(`Cliente cadastrado com sucesso. ID: ${respostaBD.rows[0].idCliente}`);
+        console.info(
+          `Cliente cadastrado com sucesso. ID: ${respostaBD.rows[0].id_cliente}`
+        );
         return true;
       }
+
       return false;
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
@@ -97,55 +104,67 @@ class Cliente {
     }
   }
 
+  // ✅ LISTAR TODOS
   static async listarCliente(): Promise<Array<Cliente> | null> {
     try {
-      let listaDeCliente: Array<Cliente> = [];
-      const querySelectCliente = `SELECT * FROM cliente ORDER BY nome ASC;`;
+      const listaDeCliente: Array<Cliente> = [];
+
+      const querySelectCliente = `
+        SELECT * FROM cliente ORDER BY nome ASC;
+      `;
+
       const respostaBD = await database.query(querySelectCliente);
 
       respostaBD.rows.forEach((clienteBD) => {
         const novoCliente: Cliente = new Cliente(
-          clienteBD.nome.toUpperCase(),
-          clienteBD.email.toUpperCase(),
-          clienteBD.endereco.toUpperCase(),
+          (clienteBD.nome || "").toUpperCase(),
+          (clienteBD.email || "").toUpperCase(),
+          (clienteBD.endereco || "").toUpperCase(),
           clienteBD.telefone,
-          clienteBD.cpf,
+          clienteBD.cpf
         );
 
         novoCliente.setIdCliente(clienteBD.id_cliente);
-
         listaDeCliente.push(novoCliente);
       });
 
       return listaDeCliente;
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
-
-
       return null;
     }
   }
 
-   static async listarClienteId(idCliente: number): Promise<Cliente | null> {
+  // ✅ LISTAR POR ID (CORRIGIDO)
+  static async listarClienteId(idCliente: number): Promise<Cliente | null> {
     try {
-      const querySelectCliente = `SELECT * FROM cliente WHERE id_cliente=$1;`;
+      const querySelectCliente = `
+        SELECT * FROM cliente WHERE id_cliente=$1;
+      `;
+
       const respostaBD = await database.query(querySelectCliente, [idCliente]);
 
-        const novoCliente: Cliente = new Cliente(
-          respostaBD.rows[0].nome.toUpperCase(),
-          respostaBD.rows[0].email.toUpperCase(),
-          respostaBD.rows[0].endereco.toUpperCase(),
-          respostaBD.rows[0].telefone,
-          respostaBD.rows[0].cpf
-        );
+      // 🔥 FIX PRINCIPAL
+      if (respostaBD.rows.length === 0) {
+        return null;
+      }
 
-        novoCliente.setIdCliente(respostaBD.rows[0].id_cliente);
+      const clienteBD = respostaBD.rows[0];
+
+      const novoCliente: Cliente = new Cliente(
+        (clienteBD.nome || "").toUpperCase(),
+        (clienteBD.email || "").toUpperCase(),
+        (clienteBD.endereco || "").toUpperCase(),
+        clienteBD.telefone,
+        clienteBD.cpf
+      );
+
+      novoCliente.setIdCliente(clienteBD.id_cliente);
 
       return novoCliente;
+
     } catch (error) {
       console.error(`Erro na consulta ao banco de dados. ${error}`);
-
-
       return null;
     }
   }

@@ -34,7 +34,7 @@ class ClienteController extends Cliente {
 
      static async id(req: Request, res: Response): Promise<Response> {
         try {
-            const idCliente: number = parseInt(req.params.idCliente as string);
+            const idCliente = Number(req.params.idCliente);
             const respostaModel = await Cliente.listarClienteId(idCliente);
             return res.status(200).json(respostaModel);
         } catch (error) {
