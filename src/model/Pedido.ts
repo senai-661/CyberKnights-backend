@@ -70,28 +70,7 @@ class Pedido {
         };
     }
 
-<<<<<<< HEAD
     // ==================== MÉTODOS ESTÁTICOS (acesso ao banco de dados) ====================
-=======
-  static async listarPedidosDetalhados() {
-  try {
-    const query = `
-      SELECT * FROM vw_pedidos_detalhados ORDER BY data_pedido DESC;`;
-
-    const respostaBD = await database.query(query);
-
-    return respostaBD.rows;
-  } catch (error) {
-    console.error(`Erro na consulta ao banco de dados. ${error}`);
-    return null;
-  }
-}
-
-  static async listarPedidoId(idPedido: number): Promise<Pedido | null> {
-    try {
-      const querySelectPedido = `SELECT * FROM pedido WHERE id_pedido=$1;`;
-      const respostaBD = await database.query(querySelectPedido, [idPedido]);
->>>>>>> 37b08c0054bb16a52f1f4a04fcf4cb2958614fdf
 
     /**
      * Busca e retorna todos os pedidos cadastrados no banco de dados, ordenados por data (mais recentes primeiro).
