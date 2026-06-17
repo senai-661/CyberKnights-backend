@@ -6,20 +6,17 @@ const database = new DatabaseModel().pool;
 class Cliente {
   private idCliente: number = 0;
   private nome: string;
-  private email: string;
   private endereco: string;
   private telefone: number;
   private cpf: number;
 
   constructor(
     _nome: string,
-    _email: string,
     _endereco: string,
     _telefone: number,
     _cpf: number
   ) {
     this.nome = _nome;
-    this.email = _email;
     this.endereco = _endereco;
     this.telefone = _telefone;
     this.cpf = _cpf;
@@ -41,13 +38,7 @@ class Cliente {
     this.nome = _nome;
   }
 
-    public getEmail(): string {
-    return this.email;
-  }
 
-  public setEmail(_email: string): void {
-    this.email = _email;
-  }
   public getEndereco(): string {
     return this.endereco;
   }
@@ -74,14 +65,13 @@ class Cliente {
 
    static async cadastrarCliente(cliente: ClienteDTO): Promise<boolean> {
     try {
-      const queryInsertCliente = `INSERT INTO cliente (nome, email, endereco, telefone, cpf)
+      const queryInsertCliente = `INSERT INTO cliente (nome, endereco, telefone, cpf)
                                 VALUES
-                                ($1, $2, $3, $4, $5)
+                                ($1, $2, $3, $4)
                                 RETURNING id_cliente;`;
 
       const respostaBD = await database.query(queryInsertCliente, [
         cliente.nome.toUpperCase(),
-        cliente.email,
         cliente.endereco.toUpperCase(),
         cliente.telefone,
         cliente.cpf
@@ -106,7 +96,6 @@ class Cliente {
       respostaBD.rows.forEach((clienteBD) => {
         const novoCliente: Cliente = new Cliente(
           clienteBD.nome.toUpperCase(),
-          clienteBD.email,
           clienteBD.endereco.toUpperCase(),
           clienteBD.telefone,
           clienteBD.cpf,
@@ -133,7 +122,6 @@ class Cliente {
 
         const novoCliente: Cliente = new Cliente(
           respostaBD.rows[0].nome.toUpperCase(),
-          respostaBD.rows[0].email,
           respostaBD.rows[0].endereco.toUpperCase(),
           respostaBD.rows[0].telefone,
           respostaBD.rows[0].cpf
