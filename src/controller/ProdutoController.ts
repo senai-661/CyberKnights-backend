@@ -15,19 +15,75 @@ class ProdutoController extends Produto {
 
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            console.log(req.body);
-            const dadosRecebidosProduto = req.body;
+            const { nomeProduto, preco, disponibilidade } = req.body;
+
+            // Validação do nome do produto
+            if (
+                !nomeProduto ||
+                typeof nomeProduto !== "string" ||
+                nomeProduto.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "O nome do produto é obrigatório."
+                });
+            }
+
+            // Validação do preço
+            if (
+                preco === undefined ||
+                preco === null ||
+                typeof preco !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O preço é obrigatório e deve ser um número."
+                });
+            }
+
+            // Validação do preço negativo
+            if (preco < 0) {
+                return res.status(400).json({
+                    mensagem: "O preço não pode ser negativo."
+                });
+            }
+
+            // Validação da disponibilidade
+            if (
+                !disponibilidade ||
+                typeof disponibilidade !== "string" ||
+                disponibilidade.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "A disponibilidade é obrigatória."
+                });
+            }
+
+            const dadosRecebidosProduto = {
+                nomeProduto: nomeProduto.trim(),
+                preco,
+                disponibilidade: disponibilidade.trim()
+            };
+
             console.log(dadosRecebidosProduto);
-            const respostaModelo = await Produto.cadastrarProduto(dadosRecebidosProduto);
+
+            const respostaModelo =
+                await Produto.cadastrarProduto(dadosRecebidosProduto);
 
             if (respostaModelo) {
-                return res.status(201).json({ mensagem: "Produto cadastrado com sucesso." });
-            } else {
-                return res.status(400).json({ mensagem: "Erro ao cadastrar produto." });
+                return res.status(201).json({
+                    mensagem: "Produto cadastrado com sucesso."
+                });
             }
+
+            return res.status(400).json({
+                mensagem: "Erro ao cadastrar produto."
+            });
+
         } catch (error) {
             console.error(`Erro no modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possível inserir o produto." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível inserir o produto."
+            });
         }
     }
 
