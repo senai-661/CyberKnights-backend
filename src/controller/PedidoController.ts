@@ -7,8 +7,6 @@ class PedidoController extends Pedido {
 
             const listaPedido: Array<Pedido> | null = await Pedido.listarPedido();
 
-
-            // Normalizar para objetos simples — evita perda de campos privados na serialização
             if (!listaPedido) {
                 return res.status(200).json([]);
             }
@@ -32,20 +30,101 @@ class PedidoController extends Pedido {
         }
     }
 
-        static async novo(req: Request, res: Response): Promise<Response> {
+    static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            console.log(req.body);
-            const dadosRecebidosPedido = req.body;
-            const respostaModelo = await Pedido.cadastrarPedido(dadosRecebidosPedido);
+            const {
+                idCliente,
+                idProduto,
+                dataPedido,
+                valorTotal,
+                statusPedido
+            } = req.body;
+
+            if (
+                idCliente === undefined ||
+                idCliente === null ||
+                typeof idCliente !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O id do cliente é obrigatório e deve ser um número."
+                });
+            }
+
+            if (
+                idProduto === undefined ||
+                idProduto === null ||
+                typeof idProduto !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O id do produto é obrigatório e deve ser um número."
+                });
+            }
+
+            if (
+                !dataPedido ||
+                typeof dataPedido !== "string" ||
+                dataPedido.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "A data do pedido é obrigatória."
+                });
+            }
+
+            if (
+                valorTotal === undefined ||
+                valorTotal === null ||
+                typeof valorTotal !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O valor total é obrigatório e deve ser um número."
+                });
+            }
+
+            if (valorTotal < 0) {
+                return res.status(400).json({
+                    mensagem: "O valor total não pode ser negativo."
+                });
+            }
+
+            if (
+                !statusPedido ||
+                typeof statusPedido !== "string" ||
+                statusPedido.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "O status do pedido é obrigatório."
+                });
+            }
+
+            const dadosRecebidosPedido = {
+                idCliente,
+                idProduto,
+                dataPedido: new Date(dataPedido),
+                valorTotal,
+                statusPedido: statusPedido.trim()
+            };
+
+            console.log("Dados recebidos do pedido:", dadosRecebidosPedido);
+
+            const respostaModelo =
+                await Pedido.cadastrarPedido(dadosRecebidosPedido);
 
             if (respostaModelo) {
-                return res.status(201).json({ mensagem: "Pedido cadastrado com sucesso." });
-            } else {
-                return res.status(400).json({ mensagem: "Erro ao cadastrar pedido." });
+                return res.status(201).json({
+                    mensagem: "Pedido cadastrado com sucesso."
+                });
             }
+
+            return res.status(400).json({
+                mensagem: "Erro ao cadastrar pedido."
+            });
+
         } catch (error) {
             console.error(`Erro no modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possível inserir o pedido." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível inserir o pedido."
+            });
         }
     }
 
@@ -74,17 +153,17 @@ class PedidoController extends Pedido {
     }
 
     static async detalhados(req: Request, res: Response): Promise<Response> {
-    try {
-        const pedidos = await Pedido.listarPedidosDetalhados();
+        try {
+            const pedidos = await Pedido.listarPedidosDetalhados();
 
-        return res.status(200).json(pedidos);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            mensagem: "Erro ao listar pedidos detalhados."
-        });
+            return res.status(200).json(pedidos);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                mensagem: "Erro ao listar pedidos detalhados."
+            });
+        }
     }
-}
 }
 
 export default PedidoController;

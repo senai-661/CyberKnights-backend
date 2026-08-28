@@ -1,5 +1,5 @@
 export interface PedidoDTO {
-    idPedido: number,
+    idPedido?: number,
     idCliente: number,
     idProduto: number,
     dataPedido: Date,
