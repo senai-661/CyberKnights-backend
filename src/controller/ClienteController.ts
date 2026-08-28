@@ -18,21 +18,96 @@ class ClienteController extends Cliente {
 
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const dadosRecebidosCliente = req.body;
-            const respostaModelo = await Cliente.cadastrarCliente(dadosRecebidosCliente);
+            const { nome, email, endereco, telefone, cpf } = req.body;
+
+            // Validação do nome
+            if (!nome || typeof nome !== "string" || nome.trim() === "") {
+                return res.status(400).json({
+                    mensagem: "O nome é obrigatório."
+                });
+            }
+
+            // Validação do email
+            if (!email || typeof email !== "string" || email.trim() === "") {
+                return res.status(400).json({
+                    mensagem: "O email é obrigatório."
+                });
+            }
+
+            // Validação do formato do email
+            const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!emailValido.test(email)) {
+                return res.status(400).json({
+                    mensagem: "Informe um email válido."
+                });
+            }
+
+            // Validação do endereço
+            if (
+                !endereco ||
+                typeof endereco !== "string" ||
+                endereco.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "O endereço é obrigatório."
+                });
+            }
+
+            // Validação do telefone
+            if (
+                telefone === undefined ||
+                telefone === null ||
+                typeof telefone !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O telefone é obrigatório e deve ser um número."
+                });
+            }
+
+            // Validação do CPF
+            // CPF não é obrigatório no banco, portanto só validamos
+            // se ele for informado.
+            if (
+                cpf !== undefined &&
+                cpf !== null &&
+                typeof cpf !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O CPF deve ser um número."
+                });
+            }
+
+            const dadosRecebidosCliente = {
+                nome: nome.trim(),
+                email: email.trim(),
+                endereco: endereco.trim(),
+                telefone,
+                cpf
+            };
+
+            const respostaModelo =
+                await Cliente.cadastrarCliente(dadosRecebidosCliente);
 
             if (respostaModelo) {
-                return res.status(201).json({ mensagem: "Cliente cadastrado com sucesso." });
-            } else {
-                return res.status(400).json({ mensagem: "Erro ao cadastrar cliente." });
+                return res.status(201).json({
+                    mensagem: "Cliente cadastrado com sucesso."
+                });
             }
+
+            return res.status(400).json({
+                mensagem: "Erro ao cadastrar cliente."
+            });
+
         } catch (error) {
             console.error(`Erro no modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possível inserir o cliente." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível inserir o cliente."
+            });
         }
     }
-
-     static async id(req: Request, res: Response): Promise<Response> {
+    static async id(req: Request, res: Response): Promise<Response> {
         try {
             const idCliente: number = parseInt(req.params.idCliente as string);
             const respostaModel = await Cliente.listarClienteId(idCliente);
