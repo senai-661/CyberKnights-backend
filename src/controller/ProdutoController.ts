@@ -2,22 +2,38 @@ import Produto from "../model/Produto.js";
 import type { Request, Response } from "express";
 
 class ProdutoController extends Produto {
+
     static async todos(req: Request, res: Response): Promise<Response> {
         try {
 
-            const listaProduto: Array<Produto> | null = await Produto.listarProduto();
+            const listaProduto: Array<Produto> | null =
+                await Produto.listarProduto();
+
             return res.status(200).json(listaProduto);
+
         } catch (error) {
+
             console.error(`Erro ao consultar modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possivel acessar a lista de produtos." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível acessar a lista de produtos."
+            });
         }
     }
 
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const { nomeProduto, preco, disponibilidade } = req.body;
 
-            // Validação do nome do produto
+            const {
+                nomeProduto,
+                preco,
+                disponibilidade
+            } = req.body;
+
+            // =========================
+            // VALIDAÇÃO DO NOME
+            // =========================
+
             if (
                 !nomeProduto ||
                 typeof nomeProduto !== "string" ||
@@ -28,25 +44,35 @@ class ProdutoController extends Produto {
                 });
             }
 
-            // Validação do preço
+            // =========================
+            // VALIDAÇÃO DO PREÇO
+            // =========================
+
             if (
                 preco === undefined ||
                 preco === null ||
-                typeof preco !== "number"
+                typeof preco !== "number" ||
+                !Number.isFinite(preco)
             ) {
                 return res.status(400).json({
                     mensagem: "O preço é obrigatório e deve ser um número."
                 });
             }
 
-            // Validação do preço negativo
+            // =========================
+            // VALIDAÇÃO DO PREÇO NEGATIVO
+            // =========================
+
             if (preco < 0) {
                 return res.status(400).json({
                     mensagem: "O preço não pode ser negativo."
                 });
             }
 
-            // Validação da disponibilidade
+            // =========================
+            // VALIDAÇÃO DA DISPONIBILIDADE
+            // =========================
+
             if (
                 !disponibilidade ||
                 typeof disponibilidade !== "string" ||
@@ -57,16 +83,29 @@ class ProdutoController extends Produto {
                 });
             }
 
+            // =========================
+            // DADOS VALIDADOS
+            // =========================
+
             const dadosRecebidosProduto = {
                 nomeProduto: nomeProduto.trim(),
                 preco,
                 disponibilidade: disponibilidade.trim()
             };
 
-            console.log(dadosRecebidosProduto);
+            console.log(
+                "Dados recebidos do produto:",
+                dadosRecebidosProduto
+            );
+
+            // =========================
+            // CADASTRO NO BANCO
+            // =========================
 
             const respostaModelo =
-                await Produto.cadastrarProduto(dadosRecebidosProduto);
+                await Produto.cadastrarProduto(
+                    dadosRecebidosProduto
+                );
 
             if (respostaModelo) {
                 return res.status(201).json({
@@ -79,6 +118,7 @@ class ProdutoController extends Produto {
             });
 
         } catch (error) {
+
             console.error(`Erro no modelo. ${error}`);
 
             return res.status(500).json({
@@ -89,12 +129,22 @@ class ProdutoController extends Produto {
 
     static async id(req: Request, res: Response): Promise<Response> {
         try {
-            const idProduto: number = parseInt(req.params.idProduto as string);
-            const respostaModel = await Produto.listarProdutoId(idProduto);
+
+            const idProduto: number =
+                parseInt(req.params.idProduto as string);
+
+            const respostaModel =
+                await Produto.listarProdutoId(idProduto);
+
             return res.status(200).json(respostaModel);
+
         } catch (error) {
+
             console.error(`Erro no modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possível obter informações do produto." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível obter informações do produto."
+            });
         }
     }
 }

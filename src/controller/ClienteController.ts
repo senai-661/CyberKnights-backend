@@ -2,48 +2,75 @@ import Cliente from "../model/Cliente.js";
 import type { Request, Response } from "express";
 
 class ClienteController extends Cliente {
+
     static async todos(req: Request, res: Response): Promise<Response> {
         try {
-
-            const listaCliente: Array<Cliente> | null = await Cliente.listarCliente();
-
+            const listaCliente: Array<Cliente> | null =
+                await Cliente.listarCliente();
 
             return res.status(200).json(listaCliente);
-        } catch (error) {
 
+        } catch (error) {
             console.error(`Erro ao consultar modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possivel acessar a lista de clientes." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível acessar a lista de clientes."
+            });
         }
     }
 
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const { nome, email, endereco, telefone, cpf } = req.body;
 
-            // Validação do nome
-            if (!nome || typeof nome !== "string" || nome.trim() === "") {
+            const {
+                nome,
+                email,
+                endereco,
+                telefone,
+                cpf
+            } = req.body;
+
+            // =========================
+            // VALIDAÇÃO DO NOME
+            // =========================
+
+            if (
+                !nome ||
+                typeof nome !== "string" ||
+                nome.trim() === ""
+            ) {
                 return res.status(400).json({
                     mensagem: "O nome é obrigatório."
                 });
             }
 
-            // Validação do email
-            if (!email || typeof email !== "string" || email.trim() === "") {
+            // =========================
+            // VALIDAÇÃO DO E-MAIL
+            // =========================
+
+            if (
+                !email ||
+                typeof email !== "string" ||
+                email.trim() === ""
+            ) {
                 return res.status(400).json({
-                    mensagem: "O email é obrigatório."
+                    mensagem: "O e-mail é obrigatório."
                 });
             }
 
-            // Validação do formato do email
-            const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailValido =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if (!emailValido.test(email)) {
+            if (!emailValido.test(email.trim())) {
                 return res.status(400).json({
-                    mensagem: "Informe um email válido."
+                    mensagem: "Informe um e-mail válido."
                 });
             }
 
-            // Validação do endereço
+            // =========================
+            // VALIDAÇÃO DO ENDEREÇO
+            // =========================
+
             if (
                 !endereco ||
                 typeof endereco !== "string" ||
@@ -54,20 +81,28 @@ class ClienteController extends Cliente {
                 });
             }
 
-            // Validação do telefone
+            // =========================
+            // VALIDAÇÃO DO TELEFONE
+            // =========================
+
             if (
                 telefone === undefined ||
                 telefone === null ||
-                typeof telefone !== "number"
+                typeof telefone !== "number" ||
+                !Number.isFinite(telefone)
             ) {
                 return res.status(400).json({
                     mensagem: "O telefone é obrigatório e deve ser um número."
                 });
             }
 
-            // Validação do CPF
-            // CPF não é obrigatório no banco, portanto só validamos
-            // se ele for informado.
+            // =========================
+            // VALIDAÇÃO DO CPF
+            // =========================
+            // CPF é opcional no banco.
+            // Portanto, somente validamos
+            // caso seja informado.
+
             if (
                 cpf !== undefined &&
                 cpf !== null &&
@@ -78,6 +113,10 @@ class ClienteController extends Cliente {
                 });
             }
 
+            // =========================
+            // DADOS VALIDADOS
+            // =========================
+
             const dadosRecebidosCliente = {
                 nome: nome.trim(),
                 email: email.trim(),
@@ -86,8 +125,14 @@ class ClienteController extends Cliente {
                 cpf
             };
 
+            // =========================
+            // CADASTRO NO BANCO
+            // =========================
+
             const respostaModelo =
-                await Cliente.cadastrarCliente(dadosRecebidosCliente);
+                await Cliente.cadastrarCliente(
+                    dadosRecebidosCliente
+                );
 
             if (respostaModelo) {
                 return res.status(201).json({
@@ -100,6 +145,7 @@ class ClienteController extends Cliente {
             });
 
         } catch (error) {
+
             console.error(`Erro no modelo. ${error}`);
 
             return res.status(500).json({
@@ -107,14 +153,25 @@ class ClienteController extends Cliente {
             });
         }
     }
+
     static async id(req: Request, res: Response): Promise<Response> {
         try {
-            const idCliente: number = parseInt(req.params.idCliente as string);
-            const respostaModel = await Cliente.listarClienteId(idCliente);
+
+            const idCliente: number =
+                parseInt(req.params.idCliente as string);
+
+            const respostaModel =
+                await Cliente.listarClienteId(idCliente);
+
             return res.status(200).json(respostaModel);
+
         } catch (error) {
+
             console.error(`Erro no modelo. ${error}`);
-            return res.status(500).json({ mensagem: "Não foi possível obter informações do cliente." });
+
+            return res.status(500).json({
+                mensagem: "Não foi possível obter informações do cliente."
+            });
         }
     }
 }
