@@ -177,7 +177,7 @@ class ClienteController extends Cliente {
                 endereco: dadosRecebidos.endereco,
                 telefone: dadosRecebidos.telefone,
                 cpf: dadosRecebidos.cpf,
-                email: dadosRecebidos.email
+                ...(dadosRecebidos.email !== undefined ? { email: dadosRecebidos.email } : {})
             };
 
             const result = await Cliente.atualizarCliente(cliente);

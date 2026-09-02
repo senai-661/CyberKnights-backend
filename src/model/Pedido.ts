@@ -258,6 +258,22 @@ class Pedido {
             throw error;
         }
     }
+
+    /**
+     * Busca todos os pedidos com informações detalhadas da view vw_pedidos_completos.
+     *
+     * @returns Promise com array de objetos retornados pela view.
+     */
+    static async listarPedidosDetalhados(): Promise<Array<any>> {
+        try {
+            const querySelectView = `SELECT * FROM vw_pedidos_completos;`;
+            const respostaBD = await database.query(querySelectView);
+            return respostaBD.rows;
+        } catch (error) {
+            console.error(`[PedidoModel] Erro ao listar pedidos detalhados:`, error);
+            throw error;
+        }
+    }
 }
 
 export default Pedido;

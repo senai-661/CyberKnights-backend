@@ -120,11 +120,23 @@ export class Auth {
      * @returns Token validado ou erro
      */
     static verifyToken(req: Request, res: Response, next: NextFunction) {
-        const token = req.headers['x-access-token'] as string;
+        const rawHeaderToken = typeof req.headers.authorization === 'string'
+            ? req.headers.authorization
+            : Array.isArray(req.headers.authorization)
+                ? req.headers.authorization[0]
+                : null;
+
+        const headerToken = rawHeaderToken ? rawHeaderToken.replace(/^Bearer\s+/i, '').trim() : null;
+
+        const legacyToken = Array.isArray(req.headers['x-access-token'])
+            ? req.headers['x-access-token'][0]
+            : req.headers['x-access-token'];
+
+        const token = (headerToken || legacyToken || '').trim();
 
         if (!token) {
             console.log('Token não informado');
-            return res.status(401).json({ message: "Token não informado", auth: false }).end();
+            return res.status(401).json({ message: "Token não informado", auth: false });
         }
 
         jwt.verify(token, SECRET, (err, decoded) => {
@@ -133,17 +145,17 @@ export class Auth {
                 // verifica se o token já expirou
                 if (err.name === 'TokenExpiredError') {
                     console.log('Token expirado');
-                    return res.status(401).json({ message: "Token expirado, faça o login novamente", auth: false }).end();
+                    return res.status(401).json({ message: "Token expirado, faça o login novamente", auth: false });
                 } else {
                     console.log('Token inválido.');
-                    return res.status(401).json({ message: "Token inválido, faça o login", auth: false }).end();
+                    return res.status(401).json({ message: "Token inválido, faça o login", auth: false });
                 }
             }
 
             // garante que o decoded não é undefined antes de continuar
             if (!decoded) {
                 console.log('Token não pôde ser decodificado');
-                return res.status(401).json({ message: "Token inválido, faça o login", auth: false }).end();
+                return res.status(401).json({ message: "Token inválido, faça o login", auth: false });
             }
 
             // desestrutura o objeto JwtPayload e armazena as informações de id, nome, email e role
@@ -152,13 +164,11 @@ export class Auth {
             // verifica se existe id no token que foi recebido pelo cliente
             if (!id) {
                 console.log('ID não encontrado no token');
-                return res.status(401).json({ message: "Token inválido, faça o login", auth: false }).end();
+                return res.status(401).json({ message: "Token inválido, faça o login", auth: false });
             }
 
             req.headers['userId'] = String(id);
             next();
         });
-
-        
     }
 }
