@@ -1,3 +1,12 @@
+CREATE TABLE Cliente (
+    id_cliente INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR (80) NOT NULL,
+    email VARCHAR (120) NOT NULL,
+    endereco VARCHAR (100) NOT NULL,
+    telefone VARCHAR (20) NOT NULL,
+    cpf VARCHAR (11)
+);
+
 CREATE TABLE Produto (
     id_produto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome_produto VARCHAR (80) NOT NULL,
@@ -5,19 +14,10 @@ CREATE TABLE Produto (
     disponibilidade VARCHAR (12) NOT NULL
 );
 
-CREATE TABLE Cliente (
-    id_cliente INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome VARCHAR (80) NOT NULL,
-    endereco VARCHAR (100) NOT NULL,
-    telefone VARCHAR (20) NOT NULL,
-    status_cliente BOOLEAN,
-    cpf VARCHAR (11)
-);
-
 CREATE TABLE Pedido (
     id_pedido INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	id_cliente INT NOT NULL,
-	id_produto INT NOT NULL,
+    id_cliente INT NOT NULL,
+    id_produto INT NOT NULL,
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
     status VARCHAR (15) NOT NULL,
@@ -25,13 +25,72 @@ CREATE TABLE Pedido (
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
-CREATE TABLE IF NOT EXISTS usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    senha VARCHAR(100) NOT NULL,
-    role VARCHAR(50) DEFAULT 'user'
-);
+CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
+CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
+
+
+ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
+ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
+ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120) NOT NULL DEFAULT '';
+
+
+UPDATE produto SET cod_produto = nextval('seq_cod_produto');
+UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
+
+
+CREATE OR REPLACE FUNCTION gerar_cod_produto()
+RETURNS TRIGGER AS $$
+BEGIN
+   IF NEW.cod_produto IS NULL THEN
+      NEW.cod_produto := nextval('seq_cod_produto');
+   END IF;
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+DROP TRIGGER IF EXISTS trigger_cod_produto ON produto;
+
+CREATE TRIGGER trigger_cod_produto
+BEFORE INSERT ON produto
+FOR EACH ROW
+EXECUTE FUNCTION gerar_cod_produto();
+
+
+CREATE OR REPLACE FUNCTION gerar_cod_pedido()
+RETURNS TRIGGER AS $$
+BEGIN
+   IF NEW.cod_pedido IS NULL THEN
+      NEW.cod_pedido := nextval('seq_cod_pedido');
+   END IF;
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
+
+CREATE TRIGGER trigger_cod_pedido
+BEFORE INSERT ON pedido
+FOR EACH ROW
+EXECUTE FUNCTION gerar_cod_pedido();
+
+
+ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
+ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
+
+INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
+VALUES
+('Ana Souza', 'ana.souza@email.com', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
+('Carlos Mendes', 'carlos.mendes@email.com', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
+('Juliana Lima', 'juliana.lima@email.com', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
+('Marcos Oliveira', 'marcos.oliveira@email.com', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
+('Fernanda Rocha', 'fernanda.rocha@email.com', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
+('Ricardo Alves', 'ricardo.alves@email.com', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
+('Patrícia Gomes', 'patricia.gomes@email.com', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
+('Lucas Ferreira', 'lucas.ferreira@email.com', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
+('Camila Santos', 'camila.santos@email.com', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
+('Bruno Costa', 'bruno.costa@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 INSERT INTO Produto (nome_produto, preco, disponibilidade)
 VALUES
@@ -46,19 +105,6 @@ VALUES
 ('Hot Dog Especial', 17.50, 'disponível'),
 ('Combo Família', 79.90, 'disponível');
 
-INSERT INTO Cliente (nome, endereco, telefone, cpf) 
-VALUES
-('Ana Souza', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
-('Carlos Mendes', 'Av Brasil, 450 - Jardim América', '13997456789', '23456789012'),
-('Juliana Lima', 'Rua São Pedro, 78 - Vila Nova', '13998877665', '34567890123'),
-('Marcos Oliveira', 'Rua das Palmeiras, 300 - Centro', '13997766554', '45678901234'),
-('Fernanda Rocha', 'Av Santos Dumont, 89 - Jardim Bela Vista', '13996655443', '56789012345'),
-('Ricardo Alves', 'Rua XV de Novembro, 210 - Centro', '13995544332', '67890123456'),
-('Patrícia Gomes', 'Rua do Comércio, 145 - Vila Rica', '13994433221', '78901234567'),
-('Lucas Ferreira', 'Av Padre Anchieta, 560 - Centro', '13993322110', '89012345678'),
-('Camila Santos', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
-('Bruno Costa', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
-
 INSERT INTO Pedido (id_cliente, id_produto, data_pedido, valor_total, status)
 VALUES
 (1, 1, '2026-02-20', 18.90, 'entregue'),
@@ -72,78 +118,46 @@ VALUES
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
 
+UPDATE cliente
+SET email = 'ana.souza@email.com'
+WHERE id_cliente = 1;
+
+UPDATE cliente
+SET email = 'carlos.mendes@email.com'
+WHERE id_cliente = 2;
+
+UPDATE cliente
+SET email = 'juliana.lima@email.com'
+WHERE id_cliente = 3;
+
+UPDATE cliente
+SET email = 'marcos.oliveira@email.com'
+WHERE id_cliente = 4;
+
+UPDATE cliente
+SET email = 'fernanda.rocha@email.com'
+WHERE id_cliente = 5;
+
+UPDATE cliente
+SET email = 'ricardo.alves@email.com'
+WHERE id_cliente = 6;
+
+UPDATE cliente
+SET email = 'patricia.gomes@email.com'
+WHERE id_cliente = 7;
+
+UPDATE cliente
+SET email = 'lucas.ferreira@email.com'
+WHERE id_cliente = 8;
+
+UPDATE cliente 
+SET email = 'camila.santos@email.com'
+WHERE id_cliente = 9;
+
+UPDATE cliente
+SET email = 'bruno.costa@email.com'
+WHERE id_cliente = 10;
+
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
 
---SPRINT 11 - CRIANDO A VIEW  PEDIDOS COMPLETOS
-
-
---essa é a view criada 
-
-CREATE VIEW vw_pedidos_completos AS
-SELECT
-    p.id_pedido,
-    c.nome AS nome_cliente,
-    c.telefone,
-    pr.nome_produto,
-    pr.preco AS valor_unitario,
-    p.data_pedido,
-    p.valor_total,
-    p.status
-FROM pedido p
-INNER JOIN cliente c  ON p.id_cliente = c.id_cliente
-INNER JOIN produto pr ON p.id_produto = pr.id_produto;
-
-
-
--- consultando a view (pois ele só funciona com SELECT)--
-SELECT *
-FROM vw_pedidos_completos;
-
-
-
---Mostrar apenas nome do produto e o valor total--
-SELECT
-    nome_produto,
-    valor_total
-FROM vw_pedidos_completos;
-
-
-
---Mostrar o os pedidos acima de 20.00 --
-SELECT *
-FROM vw_pedidos_completos
-WHERE valor_total > 20.00;
-
-
-
---Ordenar pelo maior valor total em pedidos
-SELECT *
-FROM vw_pedidos_completos
-ORDER BY valor_total DESC;
-
-
-
---Mostrar os pedidos entregue --
-SELECT *
-FROM vw_pedidos_completos
-WHERE status = 'entregue';
-
-
-
-
---Uma view com pedidos completos baixos 
-CREATE VIEW vw_pedidos_completos_baixo AS
-SELECT
-    pr.nome_produto,
-    pr.preco,
-    p.valor_total
-FROM pedido p
-INNER JOIN produto pr ON p.id_produto = pr.id_produto
-WHERE pr.preco <= 10;
-
-
---Seleciona pedidos completos baixos
-
-SELECT *
-FROM vw_pedidos_completos_baixo;
