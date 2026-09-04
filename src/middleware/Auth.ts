@@ -103,7 +103,12 @@ export class Auth {
      * @returns Token validado ou erro
      */
     static verifyToken(req: Request, res: Response, next: NextFunction) {
-        const token = req.headers['x-access-token'] as string;
+        const accessToken = req.headers['x-access-token'];
+        const authorization = req.headers.authorization;
+        const bearerToken = authorization?.startsWith('Bearer ')
+            ? authorization.slice(7)
+            : undefined;
+        const token = (accessToken || bearerToken) as string | undefined;
 
         if (!token) {
             console.log('Token não informado');

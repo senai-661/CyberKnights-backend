@@ -41,6 +41,24 @@ class ProdutoController extends Produto {
             return res.status(500).json({ mensagem: "Não foi possível obter informações do produto." });
         }
     }
+
+    static async deletar(req: Request, res: Response): Promise<Response> {
+        const idProduto = Number.parseInt(req.params.idProduto as string, 10);
+        if (Number.isNaN(idProduto)) return res.status(400).json({ mensagem: "ID de produto inválido." });
+
+        const resultado = await Produto.deletarProduto(idProduto);
+        if (resultado.conflict) return res.status(409).json({ mensagem: "Produto possui pedidos vinculados." });
+        if (!resultado.deleted) return res.status(404).json({ mensagem: "Produto não encontrado." });
+        return res.status(204).send();
+    }
+
+    static async atualizar(req: Request, res: Response): Promise<Response> {
+        const idProduto = Number.parseInt(req.params.idProduto as string, 10);
+        if (Number.isNaN(idProduto)) return res.status(400).json({ mensagem: "ID de produto inválido." });
+        const atualizado = await Produto.atualizarProduto(idProduto, req.body);
+        if (!atualizado) return res.status(404).json({ mensagem: "Produto não encontrado ou dados inválidos." });
+        return res.status(200).json({ mensagem: "Produto atualizado com sucesso." });
+    }
 }
 
 export default ProdutoController;

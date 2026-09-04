@@ -157,6 +157,32 @@ class Pedido {
       return null;
     }
   }
+
+  static async deletarPedido(idPedido: number): Promise<boolean> {
+    try {
+      const respostaBD = await database.query(
+        `DELETE FROM pedido WHERE id_pedido = $1 RETURNING id_pedido;`,
+        [idPedido]
+      );
+      return respostaBD.rowCount !== 0;
+    } catch (error) {
+      console.error(`Erro ao excluir pedido. ${error}`);
+      return false;
+    }
+  }
+
+  static async atualizarPedido(idPedido: number, pedido: PedidoDTO): Promise<boolean> {
+    try {
+      const respostaBD = await database.query(
+        `UPDATE pedido SET id_cliente = $1, id_produto = $2, data_pedido = $3, valor_total = $4, status = $5 WHERE id_pedido = $6 RETURNING id_pedido;`,
+        [pedido.idCliente, pedido.idProduto, pedido.dataPedido, pedido.valorTotal, pedido.statusPedido, idPedido]
+      );
+      return respostaBD.rowCount !== 0;
+    } catch (error) {
+      console.error(`Erro ao atualizar pedido. ${error}`);
+      return false;
+    }
+  }
 }
 
 export default Pedido;

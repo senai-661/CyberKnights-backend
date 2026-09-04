@@ -7,8 +7,16 @@ class ClienteController extends Cliente {
 
             const listaCliente: Array<Cliente> | null = await Cliente.listarCliente();
 
+            const clientes = listaCliente?.map((cliente) => ({
+                idCliente: cliente.getIdCliente(),
+                nome: cliente.getNome(),
+                email: cliente.getEmail(),
+                endereco: cliente.getEndereco(),
+                telefone: cliente.getTelefone(),
+                cpf: cliente.getCpf(),
+            })) ?? [];
 
-            return res.status(200).json(listaCliente);
+            return res.status(200).json(clientes);
         } catch (error) {
 
             console.error(`Erro ao consultar modelo. ${error}`);
@@ -41,6 +49,24 @@ class ClienteController extends Cliente {
             console.error(`Erro no modelo. ${error}`);
             return res.status(500).json({ mensagem: "Não foi possível obter informações do cliente." });
         }
+    }
+
+    static async deletar(req: Request, res: Response): Promise<Response> {
+        const idCliente = Number.parseInt(req.params.idCliente as string, 10);
+        if (Number.isNaN(idCliente)) return res.status(400).json({ mensagem: "ID de cliente inválido." });
+
+        const resultado = await Cliente.deletarCliente(idCliente);
+        if (resultado.conflict) return res.status(409).json({ mensagem: "Cliente possui pedidos vinculados." });
+        if (!resultado.deleted) return res.status(404).json({ mensagem: "Cliente não encontrado." });
+        return res.status(204).send();
+    }
+
+    static async atualizar(req: Request, res: Response): Promise<Response> {
+        const idCliente = Number.parseInt(req.params.idCliente as string, 10);
+        if (Number.isNaN(idCliente)) return res.status(400).json({ mensagem: "ID de cliente inválido." });
+        const atualizado = await Cliente.atualizarCliente(idCliente, req.body);
+        if (!atualizado) return res.status(404).json({ mensagem: "Cliente não encontrado ou dados inválidos." });
+        return res.status(200).json({ mensagem: "Cliente atualizado com sucesso." });
     }
 }
 
