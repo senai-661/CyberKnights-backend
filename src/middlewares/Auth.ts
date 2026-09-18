@@ -6,10 +6,10 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { DatabaseModel } from '../model/DatabaseModel.js';
 
 export function Authreq(req: Request, res: Response, next: NextFunction) {
-  console.log("HEADERS:", req.headers);
-  console.log("AUTH:", req.headers.authorization);
+    console.log("HEADERS:", req.headers);
+    console.log("AUTH:", req.headers.authorization);
 
-  next();
+    next();
 }
 
 // palavra secreta
@@ -40,7 +40,7 @@ export class Auth {
      * @returns Token de autenticação caso o usuário seja válido, mensagem de login não autorizado caso negativo
      */
     static async validacaoUsuario(req: Request, res: Response): Promise<any> {
-        // recupera informações do corpo da requisição
+        // Recupera informações do corpo da requisição
         const { email, senha } = req.body;
 
         // query para validar email e senha informados pelo cliente
@@ -73,15 +73,12 @@ export class Auth {
                 // Gera o token do usuário, passando como parâmetro as informações do objeto usuario
                 const tokenUsuario = Auth.generateToken(parseInt(usuario.id_usuario), usuario.nome, usuario.email, usuario.role);
 
-                // retorna ao cliente o status de autenticação (verdadeiro), o token e o objeto professor
-                // tudo isso encapsulado em um JSON
-                return res.status(200).json({ auth: true, token: tokenUsuario, usuario: usuario });
             } else {
                    console.log('Email/Senha incorretos');
                 // caso a autenticação não tenha sido bem sucedida, é retornado ao cliente o statu de autenticação (falso), um token nulo e a mensagem de falha
                 return res.status(401).json({ auth: false, token: null, message: "Usuário e/ou senha incorretos" });
             }
-            // verifica possíveis erros durante a requisição
+
         } catch (error) {
            console.error(`❌ ERRO NO LOGIN: ${error}`);
            console.error(error);

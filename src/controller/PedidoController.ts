@@ -223,17 +223,17 @@ class PedidoController extends Pedido {
     }
 
     static async detalhados(req: Request, res: Response): Promise<Response> {
-    try {
-        const pedidos = await Pedido.listarPedidosDetalhados();
+        try {
+            const pedidos = await Pedido.listarPedidosDetalhados();
 
-        return res.status(200).json(pedidos);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            mensagem: "Erro ao listar pedidos detalhados."
-        });
+            return res.status(200).json(pedidos);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({
+                mensagem: "Erro ao listar pedidos detalhados."
+            });
+        }
     }
-}
 }
 
 export default PedidoController;
