@@ -133,17 +133,19 @@ class Cliente {
                 INSERT INTO cliente (
                     nome,
                     endereco,
+                        email,
                     telefone,
                     cpf,
                     status_cliente
                 )
-                VALUES ($1, $2, $3, $4, $5)
+                    VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id_cliente;
             `;
 
             const valores = [
                 cliente.nome.toUpperCase(),
                 cliente.endereco.toUpperCase(),
+                cliente.email?.trim().toLowerCase(),
                 cliente.telefone,
                 cliente.cpf,
                 true

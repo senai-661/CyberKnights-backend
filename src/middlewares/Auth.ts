@@ -73,6 +73,12 @@ export class Auth {
                 // Gera o token do usuário, passando como parâmetro as informações do objeto usuario
                 const tokenUsuario = Auth.generateToken(parseInt(usuario.id_usuario), usuario.nome, usuario.email, usuario.role);
 
+                return res.status(200).json({
+                    auth: true,
+                    token: tokenUsuario,
+                    usuario
+                });
+
             } else {
                    console.log('Email/Senha incorretos');
                 // caso a autenticação não tenha sido bem sucedida, é retornado ao cliente o statu de autenticação (falso), um token nulo e a mensagem de falha

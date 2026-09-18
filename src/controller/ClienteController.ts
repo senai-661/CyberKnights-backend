@@ -80,9 +80,9 @@ class ClienteController extends Cliente {
         try {
             const dadosRecebidos: ClienteDTO = req.body;
 
-            if (!dadosRecebidos.nome || !dadosRecebidos.endereco
+            if (!dadosRecebidos.nome || !dadosRecebidos.endereco || !dadosRecebidos.email
                 || dadosRecebidos.telefone === undefined || dadosRecebidos.cpf === undefined) {
-                res.status(400).json({ mensagem: "Campos obrigatórios ausentes: nome, endereco, telefone e cpf." });
+                res.status(400).json({ mensagem: "Campos obrigatórios ausentes: nome, endereco, email, telefone e cpf." });
                 return;
             }
 
@@ -265,15 +265,17 @@ class ClienteController extends Cliente {
             // VALIDAÇÃO DO TELEFONE
             // =========================
 
-            if (
-                telefone === undefined ||
-                telefone === null ||
-                typeof telefone !== "number" ||
-                !Number.isFinite(telefone)
-            ) {
+            const telefoneNormalizado = telefone === undefined || telefone === null ? '' : String(telefone).replace(/\D/g, '');
+            const cpfNormalizado = cpf === undefined || cpf === null ? '' : String(cpf).replace(/\D/g, '');
+
+            if (!telefoneNormalizado) {
                 return res.status(400).json({
-                    mensagem: "O telefone é obrigatório e deve ser um número."
+                    mensagem: "O telefone é obrigatório."
                 });
+            }
+
+            if (telefoneNormalizado.length < 10 || telefoneNormalizado.length > 11) {
+                return res.status(400).json({ mensagem: "O telefone deve ter 10 ou 11 dígitos." });
             }
 
             // =========================
@@ -283,26 +285,26 @@ class ClienteController extends Cliente {
             // Portanto, somente validamos
             // caso seja informado.
 
-            if (
-                cpf !== undefined &&
-                cpf !== null &&
-                typeof cpf !== "number"
-            ) {
+            if (cpf !== undefined && cpf !== null && !cpfNormalizado) {
                 return res.status(400).json({
-                    mensagem: "O CPF deve ser um número."
+                    mensagem: "O CPF informado é inválido."
                 });
+            }
+
+            if (cpfNormalizado && cpfNormalizado.length !== 11) {
+                return res.status(400).json({ mensagem: "O CPF deve ter 11 dígitos." });
             }
 
             // =========================
             // DADOS VALIDADOS
             // =========================
 
-            const dadosRecebidosCliente = {
+            const dadosRecebidosCliente: ClienteDTO = {
                 nome: nome.trim(),
                 email: email.trim(),
                 endereco: endereco.trim(),
-                telefone,
-                cpf
+                telefone: telefoneNormalizado,
+                ...(cpfNormalizado ? { cpf: cpfNormalizado } : {})
             };
 
             // =========================
