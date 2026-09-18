@@ -210,9 +210,6 @@ class ClienteController extends Cliente {
                 cpf
             } = req.body;
 
-            // =========================
-            // VALIDAÇÃO DO NOME
-            // =========================
 
             if (
                 !nome ||
@@ -223,10 +220,6 @@ class ClienteController extends Cliente {
                     mensagem: "O nome é obrigatório."
                 });
             }
-
-            // =========================
-            // VALIDAÇÃO DO E-MAIL
-            // =========================
 
             if (
                 !email ||
@@ -247,10 +240,6 @@ class ClienteController extends Cliente {
                 });
             }
 
-            // =========================
-            // VALIDAÇÃO DO ENDEREÇO
-            // =========================
-
             if (
                 !endereco ||
                 typeof endereco !== "string" ||
@@ -261,27 +250,16 @@ class ClienteController extends Cliente {
                 });
             }
 
-            // =========================
-            // VALIDAÇÃO DO TELEFONE
-            // =========================
-
             if (
                 telefone === undefined ||
                 telefone === null ||
-                typeof telefone !== "number" ||
-                !Number.isFinite(telefone)
+                typeof telefone !== "string" ||
+                telefone.trim() === ""
             ) {
                 return res.status(400).json({
-                    mensagem: "O telefone é obrigatório e deve ser um número."
+                    mensagem: "O telefone é obrigatório e deve ser uma string."
                 });
             }
-
-            // =========================
-            // VALIDAÇÃO DO CPF
-            // =========================
-            // CPF é opcional no banco.
-            // Portanto, somente validamos
-            // caso seja informado.
 
             if (
                 cpf !== undefined &&
@@ -347,7 +325,7 @@ class ClienteController extends Cliente {
                 mensagem: "Não foi possível obter informações do cliente."
             });
         }
-}
+    }
 }
 // Exporta a classe para que possa ser importada e usada no arquivo de rotas (routes.ts)
 export default ClienteController;
