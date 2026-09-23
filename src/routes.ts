@@ -2,7 +2,7 @@ import express from "express";
 import ClienteController from "./controller/ClienteController.js";
 import PedidoController from "./controller/PedidoController.js";
 import ProdutoController from "./controller/ProdutoController.js";
-import { Auth } from "./middleware/Auth.js";
+import { Auth } from "./middlewares/Auth.js";
 import type { Request, Response, NextFunction } from "express";
 
 const router = express.Router();
@@ -21,22 +21,43 @@ router.get('/api/protegido', (req: Request, res: Response) => {
 
 router.get(`/api/cliente`, ClienteController.todos);
 router.post(`/api/cliente`, ClienteController.novo);
+<<<<<<< HEAD
 router.get(`/api/cliente/:idCliente`, ClienteController.id);
 router.delete(`/api/cliente/:idCliente`, ClienteController.deletar);
 router.put(`/api/cliente/:idCliente`, ClienteController.atualizar);
+=======
+router.get(`/api/cliente/:id`, ClienteController.cliente);
+router.put(`/api/cliente/:id`, ClienteController.atualizar);
+router.patch(`/api/cliente/:id`, ClienteController.atualizar);
+router.delete(`/api/cliente/:id`, ClienteController.remover);
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 router.get(`/api/pedido`, PedidoController.todos);
-router.get("/api/pedido/detalhado", PedidoController.detalhados);
+router.get(`/api/pedido/baratos`, PedidoController.listarPedidoBaixo);
+router.get(`/api/pedido/completos`, PedidoController.listarPedidoCompleto);
+router.get(`/api/pedido/detalhado`, PedidoController.detalhados);
 router.get(`/api/pedido/:idPedido`, PedidoController.id);
 router.post(`/api/pedido`, PedidoController.novo);
+<<<<<<< HEAD
 router.delete(`/api/pedido/:idPedido`, PedidoController.deletar);
 router.put(`/api/pedido/:idPedido`, PedidoController.atualizar);
+=======
+router.put(`/api/pedido/:idPedido`, PedidoController.atualizar);
+router.patch(`/api/pedido/:idPedido`, PedidoController.atualizar);
+router.delete(`/api/pedido/:idPedido`, PedidoController.remover);
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 router.get(`/api/produto`, ProdutoController.todos);
 router.post(`/api/produto`, ProdutoController.novo);
 router.get(`/api/produto/:idProduto`, ProdutoController.id);
+<<<<<<< HEAD
 router.delete(`/api/produto/:idProduto`, ProdutoController.deletar);
 router.put(`/api/produto/:idProduto`, ProdutoController.atualizar);
+=======
+router.put(`/api/produto/:idProduto`, ProdutoController.atualizar);
+router.patch(`/api/produto/:idProduto`, ProdutoController.atualizar);
+router.delete(`/api/produto/:idProduto`, ProdutoController.remover);
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 
 

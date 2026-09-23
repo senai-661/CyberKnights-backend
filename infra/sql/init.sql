@@ -9,15 +9,22 @@ CREATE TABLE Cliente (
 
 CREATE TABLE Produto (
     id_produto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+<<<<<<< HEAD
     nome_produto VARCHAR (80) NOT NULL,
     preco DECIMAL (10,2) NOT NULL,
     disponibilidade VARCHAR (12) NOT NULL
+=======
+    nome_produto VARCHAR(80) NOT NULL,
+    preco DECIMAL(10,2) NOT NULL,
+    disponibilidade VARCHAR(12) NOT NULL,
+    cod_produto INTEGER NOT NULL
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 );
 
 CREATE TABLE Pedido (
     id_pedido INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	id_cliente INT NOT NULL,
-	id_produto INT NOT NULL,
+    id_cliente INT NOT NULL,
+    id_produto INT NOT NULL,
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
     status VARCHAR (15) NOT NULL,
@@ -25,69 +32,85 @@ CREATE TABLE Pedido (
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
+<<<<<<< HEAD
 
 CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
 CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
 
 
+=======
+    FOREIGN KEY (id_cliente)
+        REFERENCES Cliente(id_cliente),
+
+    FOREIGN KEY (id_produto)
+        REFERENCES Produto(id_produto)
+);
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
 ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
 ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120) NOT NULL DEFAULT '';
+<<<<<<< HEAD
 
+=======
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 
 UPDATE produto SET cod_produto = nextval('seq_cod_produto');
 UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
 
 
-
 CREATE OR REPLACE FUNCTION gerar_cod_produto()
 RETURNS TRIGGER AS $$
 BEGIN
-   IF NEW.cod_produto IS NULL THEN
-      NEW.cod_produto := nextval('seq_cod_produto');
-   END IF;
-   RETURN NEW;
+
+    IF NEW.cod_produto IS NULL THEN
+        NEW.cod_produto := nextval('seq_cod_produto');
+    END IF;
+
+    RETURN NEW;
+
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 DROP TRIGGER IF EXISTS trigger_cod_produto ON produto;
 
 CREATE TRIGGER trigger_cod_produto
-BEFORE INSERT ON produto
+BEFORE INSERT ON Produto
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_produto();
-
 
 
 CREATE OR REPLACE FUNCTION gerar_cod_pedido()
 RETURNS TRIGGER AS $$
 BEGIN
-   IF NEW.cod_pedido IS NULL THEN
-      NEW.cod_pedido := nextval('seq_cod_pedido');
-   END IF;
-   RETURN NEW;
+
+    IF NEW.cod_pedido IS NULL THEN
+        NEW.cod_pedido := nextval('seq_cod_pedido');
+    END IF;
+
+    RETURN NEW;
+
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 DROP TRIGGER IF EXISTS trigger_cod_pedido ON pedido;
 
 CREATE TRIGGER trigger_cod_pedido
-BEFORE INSERT ON pedido
+BEFORE INSERT ON Pedido
 FOR EACH ROW
 EXECUTE FUNCTION gerar_cod_pedido();
-
 
 
 ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
 ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
 VALUES
 ('Ana Souza', 'ana.souza@email.com', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
@@ -101,20 +124,9 @@ VALUES
 ('Camila Santos', 'camila.santos@email.com', 'Rua Antônio Prado, 67 - Jardim Europa', '13992211009', '90123456789'),
 ('Bruno Costa', 'bruno.costa@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
-INSERT INTO Produto (nome_produto, preco, disponibilidade)
-VALUES
-('X-Burguer', 18.90, 'disponível'),
-('X-Salada', 20.90, 'disponível'),
-('X-Bacon', 24.90, 'disponível'),
-('Batata Frita Média', 15.00, 'disponível'),
-('Batata Frita Grande', 22.00, 'indisponível'),
-('Refrigerante Lata', 6.00, 'disponível'),
-('Suco Natural', 8.50, 'disponível'),
-('Milkshake Chocolate', 16.00, 'indisponível'),
-('Hot Dog Especial', 17.50, 'disponível'),
-('Combo Família', 79.90, 'disponível');
 
-INSERT INTO Pedido (id_cliente, id_produto, data_pedido, valor_total, status)
+INSERT INTO Usuarios
+(nome, email, senha)
 VALUES
 (1, 1, '2026-02-20', 18.90, 'entregue'),
 (2, 3, '2026-02-21', 24.90, 'preparando'),
@@ -131,12 +143,18 @@ UPDATE cliente
 SET email = 'ana.souza@email.com'
 WHERE id_cliente = 1;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 UPDATE cliente
 SET email = 'carlos.mendes@email.com'
 WHERE id_cliente = 2;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 UPDATE cliente
 SET email = 'juliana.lima@email.com'
 WHERE id_cliente = 3;
@@ -170,4 +188,9 @@ SET email = 'bruno.costa@email.com'
 WHERE id_cliente = 10;
 
 INSERT INTO usuario (nome, email, senha, role)
+<<<<<<< HEAD
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
+=======
+VALUES ('Admin', 'admin@email.com', '1234', 'admin');
+
+>>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
