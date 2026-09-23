@@ -34,38 +34,107 @@ class PedidoController extends Pedido {
         }
     }
 
-    /**
-     * Cadastra um novo pedido no sistema com os dados recebidos no corpo da requisição.
-     * Valida campos obrigatórios antes de persistir no banco de dados.
-     *
-     * @param req Objeto de requisição HTTP. Espera no body: idCliente, idProduto, dataPedido,
-     *            valorTotal e statusPedido (obrigatórios).
-     * @param res Objeto de resposta HTTP.
-     * @returns 201 se cadastrado com sucesso | 400 se campos obrigatórios ausentes ou falha no cadastro | 500 em caso de erro interno.
-     */
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const dadosRecebidos: PedidoDTO = req.body;
+            const {
+                idCliente,
+                idProduto,
+                dataPedido,
+                valorTotal,
+                statusPedido
+            } = req.body;
 
-            if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
-                || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
-                || !dadosRecebidos.statusPedido) {
+            // Validação do id do cliente
+            if (
+                idCliente === undefined ||
+                idCliente === null ||
+                typeof idCliente !== "number"
+            ) {
                 return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: idCliente, idProduto, dataPedido, valorTotal e statusPedido."
+                    mensagem: "O id do cliente é obrigatório e deve ser um número."
                 });
             }
 
-            const result = await Pedido.cadastrarPedido(dadosRecebidos);
-
-            if (result) {
-                return res.status(201).json({ mensagem: "Pedido cadastrado com sucesso." });
-            } else {
-                return res.status(400).json({ mensagem: "Não foi possível cadastrar o pedido." });
+            // Validação do id do produto
+            if (
+                idProduto === undefined ||
+                idProduto === null ||
+                typeof idProduto !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O id do produto é obrigatório e deve ser um número."
+                });
             }
 
+            // Validação da data do pedido
+            if (
+                !dataPedido ||
+                typeof dataPedido !== "string" ||
+                dataPedido.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "A data do pedido é obrigatória."
+                });
+            }
+
+            // Validação do valor total
+            if (
+                valorTotal === undefined ||
+                valorTotal === null ||
+                typeof valorTotal !== "number"
+            ) {
+                return res.status(400).json({
+                    mensagem: "O valor total é obrigatório e deve ser um número."
+                });
+            }
+
+            // Valor total não pode ser negativo
+            if (valorTotal < 0) {
+                return res.status(400).json({
+                    mensagem: "O valor total não pode ser negativo."
+                });
+            }
+
+            // Validação do status
+            if (
+                !statusPedido ||
+                typeof statusPedido !== "string" ||
+                statusPedido.trim() === ""
+            ) {
+                return res.status(400).json({
+                    mensagem: "O status do pedido é obrigatório."
+                });
+            }
+
+            const dadosRecebidosPedido = {
+                idCliente,
+                idProduto,
+                dataPedido: new Date(dataPedido),
+                valorTotal,
+                statusPedido: statusPedido.trim()
+            };
+
+            console.log("Dados recebidos do pedido:", dadosRecebidosPedido);
+
+            const respostaModelo =
+                await Pedido.cadastrarPedido(dadosRecebidosPedido);
+
+            if (respostaModelo) {
+                return res.status(201).json({
+                    mensagem: "Pedido cadastrado com sucesso."
+                });
+            }
+
+            return res.status(400).json({
+                mensagem: "Erro ao cadastrar pedido."
+            });
+
         } catch (error) {
-            console.error(`[PedidoController] Erro ao cadastrar pedido:`, error);
-            return res.status(500).json({ mensagem: "Não foi possível inserir o pedido." });
+            console.error(`Erro no modelo. ${error}`);
+
+            return res.status(500).json({
+                mensagem: "Não foi possível inserir o pedido."
+            });
         }
     }
 
@@ -96,129 +165,6 @@ class PedidoController extends Pedido {
             }
 
             return res.status(500).json({ mensagem: "Não foi possível obter informações do pedido." });
-        }
-    }
-
-    /**
-     * Atualiza os dados de um pedido existente no sistema.
-     * Valida o ID na URL e os campos obrigatórios no body antes de persistir no banco.
-     *
-     * @param req Objeto de requisição HTTP. Espera o parâmetro "idPedido" na URL e no body:
-     *            idCliente, idProduto, dataPedido, valorTotal e statusPedido (obrigatórios).
-     * @param res Objeto de resposta HTTP.
-     * @returns 200 se atualizado com sucesso | 400 se o ID ou campos forem inválidos | 404 se não encontrado | 500 em caso de erro interno.
-     */
-    static async atualizar(req: Request, res: Response): Promise<Response> {
-        try {
-            const idPedido = parseInt(req.params.idPedido as string);
-
-            if (isNaN(idPedido) || idPedido <= 0) {
-                return res.status(400).json({ mensagem: "ID inválido. Informe um número inteiro positivo." });
-            }
-
-            const dadosRecebidos: PedidoDTO = req.body;
-
-            if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
-                || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
-                || !dadosRecebidos.statusPedido) {
-                return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: idCliente, idProduto, dataPedido, valorTotal e statusPedido."
-                });
-            }
-
-            const pedido: PedidoDTO = {
-                idPedido: idPedido,
-                idCliente: dadosRecebidos.idCliente,
-                idProduto: dadosRecebidos.idProduto,
-                dataPedido: dadosRecebidos.dataPedido,
-                valorTotal: dadosRecebidos.valorTotal,
-                statusPedido: dadosRecebidos.statusPedido
-            };
-
-            const result = await Pedido.atualizarPedido(pedido);
-
-            if (result) {
-                return res.status(200).json({ mensagem: "Pedido atualizado com sucesso." });
-            } else {
-                return res.status(404).json({ mensagem: "Pedido não encontrado." });
-            }
-
-        } catch (error: any) {
-            console.error(`[PedidoController] Erro ao atualizar pedido (id: ${req.params.idPedido}):`, error);
-
-            if (error.message?.includes("não encontrado")) {
-                return res.status(404).json({ mensagem: error.message });
-            }
-
-            return res.status(500).json({ mensagem: "Não foi possível atualizar o pedido." });
-        }
-    }
-
-    /**
-     * Remove um pedido do sistema pelo ID informado na URL.
-     *
-     * @param req Objeto de requisição HTTP. Espera o parâmetro "idPedido" na URL (ex: /api/pedido/3).
-     * @param res Objeto de resposta HTTP.
-     * @returns 200 se removido com sucesso | 400 se o ID for inválido | 404 se não encontrado | 500 em caso de erro interno.
-     */
-    static async remover(req: Request, res: Response): Promise<Response> {
-        try {
-            const idPedido = parseInt(req.params.idPedido as string);
-
-            if (isNaN(idPedido) || idPedido <= 0) {
-                return res.status(400).json({ mensagem: "ID inválido. Informe um número inteiro positivo." });
-            }
-
-            const result = await Pedido.removerPedido(idPedido);
-
-            if (result) {
-                return res.status(200).json({ mensagem: "Pedido removido com sucesso." });
-            } else {
-                return res.status(404).json({ mensagem: "Pedido não encontrado." });
-            }
-
-        } catch (error: any) {
-            console.error(`[PedidoController] Erro ao remover pedido (id: ${req.params.idPedido}):`, error);
-
-            if (error.message?.includes("não encontrado")) {
-                return res.status(404).json({ mensagem: error.message });
-            }
-
-            return res.status(500).json({ mensagem: "Não foi possível remover o pedido." });
-        }
-    }
-
-    /**
-     * Lista pedidos com estoque baixo usando a view vw_pedidos_completos_baixo.
-     *
-     * @param req Objeto de requisição HTTP (não utiliza parâmetros neste método).
-     * @param res Objeto de resposta HTTP.
-     * @returns 200 com a lista de pedidos | 500 em caso de erro interno.
-     */
-    static async listarPedidoBaixo(req: Request, res: Response): Promise<Response> {
-        try {
-            const resultado = await Pedido.listarPedidosBaixo();
-            return res.status(200).json(resultado);
-        } catch (error) {
-            console.error(`[PedidoController] Erro ao listar pedidos baixos:`, error);
-            return res.status(500).json({ mensagem: "Erro ao buscar pedidos baixos." });
-        }
-    }
-
-    /**
-     * Lista todos os pedidos com informações completas usando a view vw_pedidos_completos.
-     *
-     * @param req Objeto de requisição HTTP (não utiliza parâmetros neste método).
-     * @param res Objeto de resposta HTTP.
-     * @returns 200 com a lista de pedidos | 500 em caso de erro interno.
-     */
-    static async listarPedidoCompleto(req: Request, res: Response): Promise<Response> {
-        try {
-            const resultado = await Pedido.listarPedidosCompleto();
-            return res.status(200).json(resultado);
-        } catch (error) {
-            console.error(`[PedidoController] Erro ao listar pedidos completos:`, error);
-            return res.status(500).json({ mensagem: "Erro ao buscar pedidos completos." });
         }
     }
 
