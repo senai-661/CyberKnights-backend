@@ -69,6 +69,7 @@ class Cliente {
             idCliente: cliente.id_cliente,
             nome: cliente.nome,
             endereco: cliente.endereco,
+            email: cliente.email,
             telefone: cliente.telefone,
             cpf: cliente.cpf
         };
@@ -187,14 +188,16 @@ class Cliente {
                 UPDATE cliente SET
                     nome     = $1,
                     endereco = $2,
-                    telefone = $3,
-                    cpf      = $4
-                WHERE id_cliente = $5
+                    email    = $3,
+                    telefone = $4,
+                    cpf      = $5
+                WHERE id_cliente = $6
             `;
 
             const valores = [
                 cliente.nome.toUpperCase(),
                 cliente.endereco.toUpperCase(),
+                cliente.email?.trim().toLowerCase(),
                 cliente.telefone,
                 cliente.cpf,
                 cliente.idCliente
