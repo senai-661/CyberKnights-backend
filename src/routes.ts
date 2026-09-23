@@ -21,10 +21,10 @@ router.get('/api/protegido', (req: Request, res: Response) => {
 
 router.get(`/api/cliente`, ClienteController.todos);
 router.post(`/api/cliente`, ClienteController.novo);
-router.get(`/api/cliente/:id`, ClienteController.cliente);
-router.put(`/api/cliente/:id`, ClienteController.atualizar);
-router.patch(`/api/cliente/:id`, ClienteController.atualizar);
-router.delete(`/api/cliente/:id`, ClienteController.remover);
+router.get(`/api/cliente/:idCliente`, ClienteController.id);
+router.put(`/api/cliente/:idCliente`, ClienteController.atualizar);
+router.patch(`/api/cliente/:idCliente`, ClienteController.atualizar);
+router.delete(`/api/cliente/:idCliente`, ClienteController.remover);
 
 router.get(`/api/pedido`, PedidoController.todos);
 router.get(`/api/pedido/baratos`, PedidoController.listarPedidoBaixo);
