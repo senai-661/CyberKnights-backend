@@ -191,10 +191,15 @@ class Produto {
      */
     static async removerProduto(idProduto: number): Promise<boolean> {
         try {
-            // Garante que o produto existe — lança "não encontrado" automaticamente se não existir
-            await Produto.listarProduto(idProduto);
-
-            const queryDelete = `DELETE FROM produto WHERE id_produto = $1`;
+            const queryDelete = `
+                WITH pedidos_removidos AS (
+                    DELETE FROM pedido
+                    WHERE id_produto = $1
+                    RETURNING id_pedido
+                )
+                DELETE FROM produto
+                WHERE id_produto = $1;
+            `;
             const respostaBD = await database.query(queryDelete, [idProduto]);
 
             return (respostaBD.rowCount ?? 0) > 0;

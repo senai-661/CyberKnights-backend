@@ -223,6 +223,11 @@ class Cliente {
     static async removerCliente(idCliente: number): Promise<boolean> {
         try {
             const queryDelete = `
+                WITH pedidos_removidos AS (
+                    DELETE FROM pedido
+                    WHERE id_cliente = $1
+                    RETURNING id_pedido
+                )
                 DELETE FROM cliente
                 WHERE id_cliente = $1;
             `;
