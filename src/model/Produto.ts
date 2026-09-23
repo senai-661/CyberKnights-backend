@@ -203,37 +203,6 @@ class Produto {
             throw error;
         }
     }
-<<<<<<< HEAD
-  }
-
-  static async deletarProduto(idProduto: number): Promise<{ deleted: boolean; conflict: boolean }> {
-    try {
-      const respostaBD = await database.query(
-        `DELETE FROM produto WHERE id_produto = $1 RETURNING id_produto;`,
-        [idProduto]
-      );
-      return { deleted: respostaBD.rowCount !== 0, conflict: false };
-    } catch (error: any) {
-      if (error?.code === '23503') return { deleted: false, conflict: true };
-      console.error(`Erro ao excluir produto. ${error}`);
-      return { deleted: false, conflict: false };
-    }
-  }
-
-  static async atualizarProduto(idProduto: number, produto: ProdutoDTO): Promise<boolean> {
-    try {
-      const respostaBD = await database.query(
-        `UPDATE produto SET nome_produto = $1, preco = $2, disponibilidade = $3 WHERE id_produto = $4 RETURNING id_produto;`,
-        [produto.nomeProduto.toUpperCase(), produto.preco, produto.disponibilidade, idProduto]
-      );
-      return respostaBD.rowCount !== 0;
-    } catch (error) {
-      console.error(`Erro ao atualizar produto. ${error}`);
-      return false;
-    }
-  }
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 }
 
 export default Produto;

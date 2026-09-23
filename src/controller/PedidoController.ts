@@ -99,27 +99,6 @@ class PedidoController extends Pedido {
         }
     }
 
-<<<<<<< HEAD
-    static async deletar(req: Request, res: Response): Promise<Response> {
-        const idPedido = Number.parseInt(req.params.idPedido as string, 10);
-        if (Number.isNaN(idPedido)) return res.status(400).json({ mensagem: "ID de pedido inválido." });
-
-        const deletado = await Pedido.deletarPedido(idPedido);
-        return res.status(204).send();
-    }
-
-    static async atualizar(req: Request, res: Response): Promise<Response> {
-        const idPedido = Number.parseInt(req.params.idPedido as string, 10);
-        if (Number.isNaN(idPedido)) return res.status(400).json({ mensagem: "ID de pedido inválido." });
-        const atualizado = await Pedido.atualizarPedido(idPedido, req.body);
-        if (!atualizado) return res.status(404).json({ mensagem: "Pedido não encontrado ou dados inválidos." });
-        return res.status(200).json({ mensagem: "Pedido atualizado com sucesso." });
-    }
-
-    static async detalhados(req: Request, res: Response): Promise<Response> {
-    try {
-        const pedidos = await Pedido.listarPedidosDetalhados();
-=======
     /**
      * Atualiza os dados de um pedido existente no sistema.
      * Valida o ID na URL e os campos obrigatórios no body antes de persistir no banco.
@@ -132,7 +111,6 @@ class PedidoController extends Pedido {
     static async atualizar(req: Request, res: Response): Promise<Response> {
         try {
             const idPedido = parseInt(req.params.idPedido as string);
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
             if (isNaN(idPedido) || idPedido <= 0) {
                 return res.status(400).json({ mensagem: "ID inválido. Informe um número inteiro positivo." });

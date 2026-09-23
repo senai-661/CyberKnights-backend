@@ -248,37 +248,6 @@ class Cliente {
             throw error;
         }
     }
-<<<<<<< HEAD
-  }
-
-  static async deletarCliente(idCliente: number): Promise<{ deleted: boolean; conflict: boolean }> {
-    try {
-      const respostaBD = await database.query(
-        `DELETE FROM cliente WHERE id_cliente = $1 RETURNING id_cliente;`,
-        [idCliente]
-      );
-      return { deleted: respostaBD.rowCount !== 0, conflict: false };
-    } catch (error: any) {
-      if (error?.code === '23503') return { deleted: false, conflict: true };
-      console.error(`Erro ao excluir cliente. ${error}`);
-      return { deleted: false, conflict: false };
-    }
-  }
-
-  static async atualizarCliente(idCliente: number, cliente: ClienteDTO): Promise<boolean> {
-    try {
-      const respostaBD = await database.query(
-        `UPDATE cliente SET nome = $1, email = $2, endereco = $3, telefone = $4, cpf = $5 WHERE id_cliente = $6 RETURNING id_cliente;`,
-        [cliente.nome.toUpperCase(), cliente.email, cliente.endereco.toUpperCase(), cliente.telefone, cliente.cpf, idCliente]
-      );
-      return respostaBD.rowCount !== 0;
-    } catch (error) {
-      console.error(`Erro ao atualizar cliente. ${error}`);
-      return false;
-    }
-  }
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 }
 
 export default Cliente;

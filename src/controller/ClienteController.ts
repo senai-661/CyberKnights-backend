@@ -13,21 +13,7 @@ class ClienteController extends Cliente {
                 return;
             }
 
-<<<<<<< HEAD
-            const clientes = listaCliente?.map((cliente) => ({
-                idCliente: cliente.getIdCliente(),
-                nome: cliente.getNome(),
-                email: cliente.getEmail(),
-                endereco: cliente.getEndereco(),
-                telefone: cliente.getTelefone(),
-                cpf: cliente.getCpf(),
-            })) ?? [];
-
-            return res.status(200).json(clientes);
-=======
             res.status(200).json(listaDeClientes);
-
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
         } catch (error) {
             console.error(`[ClienteController] Erro ao listar clientes:`, error);
             res.status(500).json({
@@ -390,23 +376,6 @@ class ClienteController extends Cliente {
         }
     }
 
-    static async deletar(req: Request, res: Response): Promise<Response> {
-        const idCliente = Number.parseInt(req.params.idCliente as string, 10);
-        if (Number.isNaN(idCliente)) return res.status(400).json({ mensagem: "ID de cliente inválido." });
-
-        const resultado = await Cliente.deletarCliente(idCliente);
-        if (resultado.conflict) return res.status(409).json({ mensagem: "Cliente possui pedidos vinculados." });
-        if (!resultado.deleted) return res.status(404).json({ mensagem: "Cliente não encontrado." });
-        return res.status(204).send();
-    }
-
-    static async atualizar(req: Request, res: Response): Promise<Response> {
-        const idCliente = Number.parseInt(req.params.idCliente as string, 10);
-        if (Number.isNaN(idCliente)) return res.status(400).json({ mensagem: "ID de cliente inválido." });
-        const atualizado = await Cliente.atualizarCliente(idCliente, req.body);
-        if (!atualizado) return res.status(404).json({ mensagem: "Cliente não encontrado ou dados inválidos." });
-        return res.status(200).json({ mensagem: "Cliente atualizado com sucesso." });
-    }
 }
 
 export default ClienteController;
