@@ -110,6 +110,20 @@ class Produto {
      */
     static async cadastrarProduto(produto: ProdutoDTO): Promise<boolean> {
         try {
+            const produtoExistente = await database.query(
+                `SELECT 1
+                 FROM produto
+                 WHERE LOWER(TRIM(nome_produto)) = LOWER(TRIM($1))
+                   AND preco = $2
+                   AND LOWER(TRIM(disponibilidade)) = LOWER(TRIM($3))
+                 LIMIT 1`,
+                [produto.nomeProduto, produto.preco, produto.disponibilidade]
+            );
+
+            if (produtoExistente.rowCount) {
+                throw new Error("Este produto já está cadastrado com os mesmos dados.");
+            }
+
             const queryInsertProduto = `
                 INSERT INTO produto (
                     nome_produto,
