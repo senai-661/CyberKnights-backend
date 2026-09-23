@@ -107,10 +107,6 @@ EXECUTE FUNCTION gerar_cod_pedido();
 ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
 ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
 
-<<<<<<< HEAD
-
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
 VALUES
 ('Ana Souza', 'ana.souza@email.com', 'Rua das Flores, 120 - Centro', '13998123456', '12345678901'),
@@ -139,58 +135,6 @@ VALUES
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
 
-UPDATE cliente
-SET email = 'ana.souza@email.com'
-WHERE id_cliente = 1;
-
-<<<<<<< HEAD
-
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
-UPDATE cliente
-SET email = 'carlos.mendes@email.com'
-WHERE id_cliente = 2;
-
-<<<<<<< HEAD
-
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
-UPDATE cliente
-SET email = 'juliana.lima@email.com'
-WHERE id_cliente = 3;
-
-UPDATE cliente
-SET email = 'marcos.oliveira@email.com'
-WHERE id_cliente = 4;
-
-UPDATE cliente
-SET email = 'fernanda.rocha@email.com'
-WHERE id_cliente = 5;
-
-UPDATE cliente
-SET email = 'ricardo.alves@email.com'
-WHERE id_cliente = 6;
-
-UPDATE cliente
-SET email = 'patricia.gomes@email.com'
-WHERE id_cliente = 7;
-
-UPDATE cliente
-SET email = 'lucas.ferreira@email.com'
-WHERE id_cliente = 8;
-
-UPDATE cliente 
-SET email = 'camila.santos@email.com'
-WHERE id_cliente = 9;
-
-UPDATE cliente
-SET email = 'bruno.costa@email.com'
-WHERE id_cliente = 10;
 
 INSERT INTO usuario (nome, email, senha, role)
-<<<<<<< HEAD
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
-=======
-VALUES ('Admin', 'admin@email.com', '1234', 'admin');
-
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
