@@ -33,14 +33,23 @@ router.get("/api/protegido", (req: Request, res: Response) => {
     res.send("Rota protegida");
 });
 
+router.get(`/api/cliente`, ClienteController.todos);
+router.post(`/api/cliente`, ClienteController.novo);
+router.get(`/api/cliente/:id`, ClienteController.cliente);
+router.put(`/api/cliente/:id`, ClienteController.atualizar);
+router.patch(`/api/cliente/:id`, ClienteController.atualizar);
+router.delete(`/api/cliente/:id`, ClienteController.remover);
 
-// ==================== CLIENTE ====================
+router.get(`/api/pedido`, PedidoController.todos);
+router.get(`/api/pedido/detalhado`, PedidoController.detalhados);
+router.get(`/api/pedido/:idPedido`, PedidoController.id);
+router.post(`/api/pedido`, PedidoController.novo);
 
-router.get("/api/cliente", ClienteController.todos);
-router.post("/api/cliente", ClienteController.novo);
-router.get("/api/cliente/:idCliente", ClienteController.id);
-router.put("/api/cliente/:idCliente", ClienteController.atualizar);
-router.delete("/api/cliente/:idCliente", ClienteController.remover);
+router.get(`/api/produto`, ProdutoController.todos);
+router.post(`/api/produto`, ProdutoController.novo);
+router.get(`/api/produto/:idProduto`, ProdutoController.id);
+router.put(`/api/produto/:idProduto`, ProdutoController.atualizar);
+router.patch(`/api/produto/:idProduto`, ProdutoController.atualizar);
 
 
 // ==================== PEDIDO ====================
