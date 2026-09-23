@@ -22,6 +22,8 @@ router.get('/api/protegido', (req: Request, res: Response) => {
 router.get(`/api/cliente`, ClienteController.todos);
 router.post(`/api/cliente`, ClienteController.novo);
 router.get(`/api/cliente/:idCliente`, ClienteController.id);
+router.put(`/api/cliente/:idCliente`, ClienteController.atualizar);
+router.delete(`/api/cliente/:idCliente`, ClienteController.remover);
 
 router.get(`/api/pedido`, PedidoController.todos);
 router.get(`/api/pedido/baratos`, PedidoController.listarPedidoBaixo);
@@ -29,10 +31,14 @@ router.get(`/api/pedido/completos`, PedidoController.listarPedidoCompleto);
 router.get(`/api/pedido/detalhado`, PedidoController.detalhados);
 router.get(`/api/pedido/:idPedido`, PedidoController.id);
 router.post(`/api/pedido`, PedidoController.novo);
+router.put(`/api/pedido/:idPedido`, PedidoController.atualizar);
+router.delete(`/api/pedido/:idPedido`, PedidoController.remover);
 
 router.get(`/api/produto`, ProdutoController.todos);
 router.post(`/api/produto`, ProdutoController.novo);
 router.get(`/api/produto/:idProduto`, ProdutoController.id);
+router.put(`/api/produto/:idProduto`, ProdutoController.atualizar);
+router.delete(`/api/produto/:idProduto`, ProdutoController.remover);
 
 
 
