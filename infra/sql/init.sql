@@ -144,6 +144,23 @@ VALUES
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
 
+CREATE OR REPLACE VIEW public.vw_pedidos_detalhados
+ AS
+ SELECT p.id_pedido,
+    c.nome,
+    c.telefone,
+    pr.nome_produto,
+    pr.preco,
+    p.data_pedido,
+    p.valor_total,
+    p.status_pedido
+   FROM pedido p
+     JOIN cliente c ON p.id_cliente = c.id_cliente
+     JOIN produto pr ON p.id_produto = pr.id_produto;
+
+ALTER TABLE public.vw_pedidos_detalhados
+    OWNER TO postgres;
+
 ALTER TABLE Cliente
 ADD CONSTRAINT unique_email UNIQUE (email);
 
