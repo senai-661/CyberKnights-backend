@@ -164,8 +164,8 @@ class PedidoController extends Pedido {
                 dataPedido: dadosRecebidos.dataPedido,
                 valorTotal: dadosRecebidos.valorTotal,
                 statusPedido: dadosRecebidos.statusPedido,
-                formaPagamento: dadosRecebidos.formaPagamento,
-                pago: dadosRecebidos.pago
+                ...(dadosRecebidos.formaPagamento ? { formaPagamento: dadosRecebidos.formaPagamento } : {}),
+                ...(dadosRecebidos.pago !== undefined ? { pago: dadosRecebidos.pago } : {})
             };
 
             const result = await Pedido.atualizarPedido(pedido);

@@ -13,6 +13,7 @@ async function startServer() {
 
     try {
         await database.ensureUsuarioTable();
+        await database.ensurePedidoSchema();
     } catch (error) {
         console.error('Falha ao garantir esquema de banco de dados:', error);
         return;

@@ -1,0 +1,107 @@
+Clara Gabrielle, Beatriz Amaral, Lavinia Campos, Heloísa Rozzette, Sofia Martins
+Sprint 4
+Regras de negócio:
+
+RN001- Pedido mínimo
+Descrição: o cliente só poderá realizar um pedido se o carrinho der acima de R$15,00.
+Condição: quando o cliente for finalizar o pedido.
+Ação do sistema: o sistema deve bloquear página do próximo passo (que seria a do pagamento).
+Mensagem ao usuário: “Pedido não finalizado. O valor mínimo para pedidos é de R$15,00.”
+
+RN002 — Controle de disponibilidade de produtos
+Descrição: Ao criar um pedido, o sistema deve verificar o nome do cliente, o nome do produto e o status de disponibilidade do produto. O pedido só poderá ser realizado caso todos os produtos selecionados estejam marcados como “disponível”.
+Condição: Quando o cliente tentar criar/finalizar um pedido.
+Ação do sistema: O sistema deve carregar os dados do cliente e dos produtos selecionados, verificar o status de disponibilidade de cada produto e bloquear a criação do pedido caso algum produto esteja marcado como “indisponível”.
+Mensagem ao usuário: “Não foi possível realizar o pedido. Um ou mais produtos selecionados estão indisponíveis no momento. Por favor, escolha outro item do cardápio.”
+Pós-condição: Caso todos os produtos estejam disponíveis, o pedido poderá ser criado e registrado no sistema. Caso algum produto esteja indisponível, o pedido não será criado.
+
+RN003 – Confirmação do pedido
+Descrição: o pedido só é confirmado e mandado para a cozinha após o pagamento.
+Condição: após o usuário realizar o pagamento e a nota fiscal ter sido impressa.
+Ação do sistema: não deixar o pedido ser dado como confirmado até o pagamento.
+Mensagem ao usuário: “Estamos quase lá. Efetue o pagamento para confirmarmos o seu pedido.”
+Requisitos funcionais:
+RF001 – Cadastrar cliente
+Objetivo: permitir que o usuário coloque suas informações.
+Descrição: permitir que o cliente cadastre suas informações e garante que elas fiquem salvas no sistema.
+Prioridade: alta.
+Entradas: nome (obrigatório), endereço (obrigatório), telefone (obrigatório) e CPF (opcional).
+Processamento: validar os campos obrigatórios e caso esteja, salvar no sistema.
+Saídas: “Tudo pronto para fazer o seu pedido”. Se der erro: “Campos obrigatórios não preenchidos”.
+Pós-condição: o cliente já fica registrado no sistema para outros futuros pedidos.
+RF002 – Adicionar itens ao carrinho
+Objetivo: permitir que o cliente adicione pedidos ao carrinho.
+Descrição: o sistema deve permitir adicionar itens do cardápio no carrinho.
+Prioridade: alta.
+Entradas: produtos selecionados e quantidade.
+Processamento: verifica se o produto está disponível e atualiza o carrinho com o produto selecionado.
+Saídas: “Produtos adicionados ao carrinho com sucesso”.
+Pós-condição: carrinho contém os produtos selecionados.
+RF003 – Alterar carrinho
+Objetivo: permitir a edição dos itens adicionados ao carrinho.
+Descrição: o sistema deve possibilitar a alteração da quantidade ou remoção de itens do carrinho.
+Prioridade: alta
+Entradas: novos produtos e/ou remoção de produtos.
+Processamento: atualiza os dados do carrinho e recalcula o preço final.
+Saídas: “Carrinho alterado com sucesso”.
+Pós-condição: carrinho reflete as alterações realizadas.
+RF004 – Escolher forma de pagamento
+Objetivo: permitir que o cliente selecione a forma de pagamento do pedido.
+Descrição: o sistema deve possuir opções de pagamentos variadas, com opção de pagar online, no cartão ou no dinheiro na hora da retirada ou delivery.
+Prioridade: alta.
+Entradas: forma de pagamento escolhida (dinheiro, cartão ou pix).
+Processamento: registra a forma de pagamento selecionada no pedido
+Saídas: confirmação da forma de pagamento escolhida
+Pós-condição: pedido confirmado e associado a uma forma de pagamento
+RF005 – Finalizar pedido
+Objetivo: permitir que o cliente conclua o pedido realizado no sistema.
+Descrição: o sistema deve possibilitar a finalização do pedido após a seleção dos itens no carrinho e da forma de pagamento.
+Prioridade: alta.
+Entradas: confirmação da finalização do pedido pelo cliente.
+Processamento: verifica se o carrinho possui itens, verifica se o valor mínimo do pedido foi atingido, verifica se a lanchonete está dentro do horário de funcionamento, valida se uma forma de pagamento foi selecionada, registra o pedido no sistema
+Saídas: “Seu pedido foi confirmado com sucesso.”, exibição do número do pedido e do valor total.
+Pós-condição: status inicial do pedido definido como “Em preparo”.
+
+RF006 — Listar pedidos
+Objetivo: Permitir que o usuário visualize os pedidos cadastrados no sistema.
+Descrição: O sistema deve permitir a visualização de uma lista contendo os pedidos realizados, apresentando as principais informações de cada pedido.
+Prioridade: Alta.
+Entradas: Solicitação para visualizar os pedidos cadastrados.
+Processamento: O sistema deve consultar os pedidos registrados no banco de dados e carregar as informações correspondentes ao cliente e aos produtos de cada pedido.
+Saídas: Exibição da lista de pedidos, contendo informações como número do pedido, nome do cliente, produtos, valor total e status do pedido.
+Pós-condição: Os pedidos cadastrados ficam disponíveis para consulta na lista de pedidos.
+
+
+Requisitos não funcionais:
+RNF001- Segurança:
+Objetivo: Criptografia de dados: Garantir que senhas, dados pessoais e informações de pagamento sejam armazenados de forma segura (hash, SSL/TLS). 
+Autenticação segura: Login com limite de tentativas e bloqueio temporário após várias tentativas falhas.
+
+RNF002- Usabilidade:
+Layout responsivo: Site deve funcionar em desktops, tablets e smartphones.
+Navegação intuitiva: Fluxo de compra claro, menus e botões fáceis de usar.
+Feedback ao usuário: Mensagens de erro e sucesso devem ser claras e objetivas.
+
+RNF003- Performance:
+Otimização de imagens: Imagens de produtos devem ser otimizadas para reduzir tamanho sem perder qualidade.
+Cache de dados: Produtos e cardápio mais acessados devem ser armazenados em cache para acelerar carregamento.
+
+RNF004- Confiabilidade:
+Tempo de atividade: Site deve estar disponível 99% do tempo no horário de funcionamento.
+Redundância: Servidores de backup em caso de falha do servidor principal.
+Recuperação de falhas: Sistema deve recuperar pedidos não finalizados automaticamente após uma falha.
+RNF005- Manutenção:
+Documentação técnica: Código e processos documentados para futuras atualizações.
+Log de erros: Sistema deve registrar erros e eventos para análise e correção rápida.
+
+RNF006- Compatibilidade:
+Navegadores suportados: Site deve funcionar corretamente nos principais navegadores (Chrome, Edge, Firefox, Safari).
+Integração com gateways de pagamento: Compatível com PagSeguro, PayPal, PIX e cartões de crédito/débito.
+
+RNF007- Acessibilidade: 
+Objetivo:
+ Garantir que pessoas com deficiência consigam utilizar o site do Lanches Maga.
+Descrição:
+ O sistema deve seguir boas práticas de acessibilidade, permitindo o uso por pessoas com deficiência visual, motora ou cognitiva.
+
+Paleta de cores: preto, amarelo, 

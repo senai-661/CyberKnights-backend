@@ -4,9 +4,6 @@ import { type Request, type Response, type NextFunction } from 'express';
 import { DatabaseModel } from '../model/DatabaseModel.js';
 
 export function Authreq(req: Request, res: Response, next: NextFunction) {
-    console.log("HEADERS:", req.headers);
-    console.log("AUTH:", req.headers.authorization);
-
     next();
 }
 

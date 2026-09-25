@@ -33,8 +33,14 @@ export class DatabaseModel {
             this._client.end();
             return true;
         } catch (error) {
-            console.log('Error to connect database X');
-            console.log(error);
+            const codigo = error instanceof Error && 'code' in error
+                ? String((error as Error & { code?: string }).code)
+                : 'desconhecido';
+            if (codigo === '28P01') {
+                console.error('Falha no PostgreSQL: DB_PASSWORD não corresponde ao usuário DB_USER configurado no .env.');
+            } else {
+                console.error(`Falha ao conectar ao PostgreSQL (código ${codigo}).`);
+            }
             this._client.end();
             return false;
         }
@@ -77,6 +83,73 @@ export class DatabaseModel {
             console.error('Failed to ensure usuario table:', error);
             throw error;
         }
+    }
+
+    public async ensurePedidoSchema(): Promise<void> {
+        await this._pool.query(`
+            ALTER TABLE cliente
+                ADD COLUMN IF NOT EXISTS status_cliente BOOLEAN NOT NULL DEFAULT TRUE;
+
+            ALTER TABLE pedido
+                ADD COLUMN IF NOT EXISTS quantidade INTEGER NOT NULL DEFAULT 1,
+                ADD COLUMN IF NOT EXISTS status_pedido VARCHAR(30),
+                ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(20),
+                ADD COLUMN IF NOT EXISTS pago BOOLEAN NOT NULL DEFAULT FALSE,
+                ADD COLUMN IF NOT EXISTS cod_pedido INTEGER;
+
+            DROP VIEW IF EXISTS vw_pedidos_completos_baixo;
+            DROP VIEW IF EXISTS vw_pedidos_completos;
+
+            ALTER TABLE pedido
+                ALTER COLUMN status_pedido TYPE VARCHAR(30);
+
+            DO $$
+            BEGIN
+                IF EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'pedido' AND column_name = 'status'
+                ) THEN
+                    UPDATE pedido
+                    SET status_pedido = COALESCE(status_pedido, status)
+                    WHERE status_pedido IS NULL;
+                END IF;
+            END $$;
+
+            UPDATE pedido
+            SET quantidade = 1
+            WHERE quantidade IS NULL OR quantidade <= 0;
+
+            UPDATE pedido
+            SET status_pedido = 'Aguardando pagamento'
+            WHERE status_pedido IS NULL;
+
+            ALTER TABLE pedido
+                ALTER COLUMN status_pedido SET NOT NULL;
+
+            CREATE OR REPLACE VIEW vw_pedidos_completos AS
+            SELECT
+                pe.id_pedido,
+                pe.id_cliente,
+                cl.nome AS nome_cliente,
+                pe.id_produto,
+                pe.quantidade,
+                pr.nome_produto,
+                pr.preco AS preco_unitario,
+                pe.data_pedido,
+                pe.valor_total,
+                pe.status_pedido,
+                pe.forma_pagamento,
+                pe.pago
+            FROM pedido pe
+            JOIN cliente cl ON cl.id_cliente = pe.id_cliente
+            JOIN produto pr ON pr.id_produto = pe.id_produto;
+
+            CREATE OR REPLACE VIEW vw_pedidos_completos_baixo AS
+            SELECT * FROM vw_pedidos_completos
+            WHERE LOWER(nome_produto) LIKE '%indispon%';
+        `);
+
+        console.log('Schema de pedidos verificado.');
     }
 
     public get pool() {

@@ -36,6 +36,12 @@ END $$;
 ALTER TABLE pedido
     ADD COLUMN IF NOT EXISTS status_pedido VARCHAR(30);
 
+DROP VIEW IF EXISTS vw_pedidos_completos_baixo;
+DROP VIEW IF EXISTS vw_pedidos_completos;
+
+ALTER TABLE pedido
+    ALTER COLUMN status_pedido TYPE VARCHAR(30);
+
 ALTER TABLE pedido
     ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(20);
 
