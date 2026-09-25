@@ -6,6 +6,7 @@ import { type Request, type Response } from "express";
 
 // Importa o tipo ClienteDTO para tipar os dados recebidos do front-end no body das requisições
 import type { ClienteDTO } from "../interface/ClienteDTO.js";
+import { validarCliente } from "../validation/RegrasNegocio.js";
 
 // Define a classe ClienteController que HERDA da classe Cliente (extends)
 // A herança permite que o controller acesse os métodos estáticos do model sem precisar importá-los separadamente
@@ -214,86 +215,13 @@ class ClienteController extends Cliente {
             // VALIDAÇÃO DO NOME
             // =========================
 
-            if (
-                !nome ||
-                typeof nome !== "string" ||
-                nome.trim() === ""
-            ) {
-                return res.status(400).json({
-                    mensagem: "O nome é obrigatório."
-                });
+            const erroValidacao = validarCliente({ nome, endereco, telefone, email, cpf });
+            if (erroValidacao) {
+                return res.status(400).json({ mensagem: erroValidacao });
             }
 
-            // =========================
-            // VALIDAÇÃO DO E-MAIL
-            // =========================
-
-            if (
-                !email ||
-                typeof email !== "string" ||
-                email.trim() === ""
-            ) {
-                return res.status(400).json({
-                    mensagem: "O e-mail é obrigatório."
-                });
-            }
-
-            const emailValido =
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if (!emailValido.test(email.trim())) {
-                return res.status(400).json({
-                    mensagem: "Informe um e-mail válido."
-                });
-            }
-
-            // =========================
-            // VALIDAÇÃO DO ENDEREÇO
-            // =========================
-
-            if (
-                !endereco ||
-                typeof endereco !== "string" ||
-                endereco.trim() === ""
-            ) {
-                return res.status(400).json({
-                    mensagem: "O endereço é obrigatório."
-                });
-            }
-
-            // =========================
-            // VALIDAÇÃO DO TELEFONE
-            // =========================
-
-            const telefoneNormalizado = telefone === undefined || telefone === null ? '' : String(telefone).replace(/\D/g, '');
+            const telefoneNormalizado = String(telefone).replace(/\D/g, '');
             const cpfNormalizado = cpf === undefined || cpf === null ? '' : String(cpf).replace(/\D/g, '');
-
-            if (!telefoneNormalizado) {
-                return res.status(400).json({
-                    mensagem: "O telefone é obrigatório."
-                });
-            }
-
-            if (telefoneNormalizado.length < 10 || telefoneNormalizado.length > 11) {
-                return res.status(400).json({ mensagem: "O telefone deve ter 10 ou 11 dígitos." });
-            }
-
-            // =========================
-            // VALIDAÇÃO DO CPF
-            // =========================
-            // CPF é opcional no banco.
-            // Portanto, somente validamos
-            // caso seja informado.
-
-            if (cpf !== undefined && cpf !== null && !cpfNormalizado) {
-                return res.status(400).json({
-                    mensagem: "O CPF informado é inválido."
-                });
-            }
-
-            if (cpfNormalizado && cpfNormalizado.length !== 11) {
-                return res.status(400).json({ mensagem: "O CPF deve ter 11 dígitos." });
-            }
 
             // =========================
             // DADOS VALIDADOS
@@ -301,9 +229,9 @@ class ClienteController extends Cliente {
 
             const dadosRecebidosCliente: ClienteDTO = {
                 nome: nome.trim(),
-                email: email.trim(),
                 endereco: endereco.trim(),
                 telefone: telefoneNormalizado,
+                ...(typeof email === "string" && email.trim() ? { email: email.trim() } : {}),
                 ...(cpfNormalizado ? { cpf: cpfNormalizado } : {})
             };
 

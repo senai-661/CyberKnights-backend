@@ -13,6 +13,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/api/login', Auth.validacaoUsuario);
+router.post(`/api/cliente`, ClienteController.novo);
 
 router.use(Auth.verifyToken);
 router.get('/api/protegido', (req: Request, res: Response) => {
@@ -20,7 +21,6 @@ router.get('/api/protegido', (req: Request, res: Response) => {
 });
 
 router.get(`/api/cliente`, ClienteController.todos);
-router.post(`/api/cliente`, ClienteController.novo);
 router.get(`/api/cliente/:id`, ClienteController.cliente);
 router.put(`/api/cliente/:id`, ClienteController.atualizar);
 router.patch(`/api/cliente/:id`, ClienteController.atualizar);

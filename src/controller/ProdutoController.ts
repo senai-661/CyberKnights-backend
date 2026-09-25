@@ -76,7 +76,8 @@ class ProdutoController extends Produto {
         try {
             const dadosRecebidos: ProdutoDTO = req.body;
 
-            if (!dadosRecebidos.nomeProduto || dadosRecebidos.preco === undefined || !dadosRecebidos.disponibilidade) {
+            if (!dadosRecebidos.nomeProduto || !Number.isFinite(dadosRecebidos.preco) || dadosRecebidos.preco < 0
+                || !["Disponível", "Indisponível", "disponível", "indisponível", "disponivel", "indisponivel"].includes(dadosRecebidos.disponibilidade)) {
                 return res.status(400).json({
                     mensagem: "Campos obrigatórios ausentes: nomeProduto, preco e disponibilidade."
                 });
@@ -115,7 +116,8 @@ class ProdutoController extends Produto {
 
             const dadosRecebidos: ProdutoDTO = req.body;
 
-            if (!dadosRecebidos.nomeProduto || dadosRecebidos.preco === undefined || !dadosRecebidos.disponibilidade) {
+            if (!dadosRecebidos.nomeProduto || !Number.isFinite(dadosRecebidos.preco) || dadosRecebidos.preco < 0
+                || !["Disponível", "Indisponível", "disponível", "indisponível", "disponivel", "indisponivel"].includes(dadosRecebidos.disponibilidade)) {
                 return res.status(400).json({
                     mensagem: "Campos obrigatórios ausentes: nomeProduto, preco e disponibilidade."
                 });

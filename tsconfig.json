@@ -41,4 +41,5 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   }
+  ,"exclude": ["test"]
 }

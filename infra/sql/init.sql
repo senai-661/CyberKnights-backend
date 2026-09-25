@@ -4,7 +4,8 @@ CREATE TABLE Cliente (
     email VARCHAR (120) NOT NULL,
     endereco VARCHAR (100) NOT NULL,
     telefone VARCHAR (20) NOT NULL,
-    cpf VARCHAR (11)
+    cpf VARCHAR (11),
+    status_cliente BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE Produto (
@@ -15,27 +16,70 @@ CREATE TABLE Produto (
     cod_produto INTEGER NOT NULL
 );
 
+CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START WITH 1;
+CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START WITH 1;
+
 CREATE TABLE Pedido (
     id_pedido INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     id_cliente INT NOT NULL,
     id_produto INT NOT NULL,
+    quantidade INTEGER NOT NULL DEFAULT 1 CHECK (quantidade > 0),
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
-    status VARCHAR (15) NOT NULL,
+    status_pedido VARCHAR (30) NOT NULL,
+    forma_pagamento VARCHAR (20),
+    pago BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
-    FOREIGN KEY (id_cliente)
-        REFERENCES Cliente(id_cliente),
-
-    FOREIGN KEY (id_produto)
-        REFERENCES Produto(id_produto)
-);
+ALTER TABLE cliente ALTER COLUMN email DROP NOT NULL;
+ALTER TABLE cliente ADD COLUMN IF NOT EXISTS status_cliente BOOLEAN NOT NULL DEFAULT TRUE;
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'pedido' AND column_name = 'status'
+    ) AND NOT EXISTS (
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_name = 'pedido' AND column_name = 'status_pedido'
+    ) THEN
+        ALTER TABLE pedido RENAME COLUMN status TO status_pedido;
+    END IF;
+END $$;
+ALTER TABLE pedido ADD COLUMN IF NOT EXISTS status_pedido VARCHAR(30);
+ALTER TABLE pedido ADD COLUMN IF NOT EXISTS quantidade INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE pedido ADD COLUMN IF NOT EXISTS forma_pagamento VARCHAR(20);
+ALTER TABLE pedido ADD COLUMN IF NOT EXISTS pago BOOLEAN NOT NULL DEFAULT FALSE;
 
 ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
 ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
 ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120) NOT NULL DEFAULT '';
+
+CREATE OR REPLACE VIEW vw_pedidos_completos AS
+SELECT
+    pe.id_pedido,
+    pe.id_cliente,
+    cl.nome AS nome_cliente,
+    pe.id_produto,
+    pe.quantidade,
+    pr.nome_produto,
+    pr.preco AS preco_unitario,
+    pe.data_pedido,
+    pe.valor_total,
+    pe.status_pedido,
+    pe.forma_pagamento,
+    pe.pago
+FROM pedido pe
+JOIN cliente cl ON cl.id_cliente = pe.id_cliente
+JOIN produto pr ON pr.id_produto = pe.id_produto;
+
+CREATE OR REPLACE VIEW vw_pedidos_completos_baixo AS
+SELECT *
+FROM vw_pedidos_completos
+WHERE LOWER(nome_produto) LIKE '%indispon%';
 
 
 UPDATE produto SET cod_produto = nextval('seq_cod_produto');
@@ -52,6 +96,49 @@ BEGIN
 
     RETURN NEW;
 
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION cadastrar_pedido_validado(
+    p_id_cliente INTEGER,
+    p_id_produto INTEGER,
+    p_data_pedido DATE,
+    p_valor_total DECIMAL(10,2),
+    p_forma_pagamento VARCHAR(20),
+    p_pago BOOLEAN DEFAULT FALSE
+)
+RETURNS INTEGER AS $$
+DECLARE
+    v_id_pedido INTEGER;
+    v_disponibilidade VARCHAR(12);
+BEGIN
+    IF p_valor_total < 15 THEN
+        RAISE EXCEPTION 'Pedido não finalizado. O valor mínimo para pedidos é de R$15,00.';
+    END IF;
+
+    SELECT disponibilidade INTO v_disponibilidade
+    FROM produto
+    WHERE id_produto = p_id_produto;
+
+    IF NOT FOUND OR LOWER(v_disponibilidade) NOT IN ('disponível', 'disponivel') THEN
+        RAISE EXCEPTION 'Produto indisponível no momento. Por favor, escolha outro item do cardápio.';
+    END IF;
+
+    IF p_forma_pagamento NOT IN ('dinheiro', 'cartao', 'pix') THEN
+        RAISE EXCEPTION 'Selecione uma forma de pagamento válida.';
+    END IF;
+
+    INSERT INTO pedido (
+        id_cliente, id_produto, data_pedido, valor_total,
+        status_pedido, forma_pagamento, pago
+    ) VALUES (
+        p_id_cliente, p_id_produto, p_data_pedido, p_valor_total,
+        CASE WHEN p_pago THEN 'Em preparo' ELSE 'Aguardando pagamento' END,
+        p_forma_pagamento, p_pago
+    )
+    RETURNING id_pedido INTO v_id_pedido;
+
+    RETURN v_id_pedido;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -103,20 +190,6 @@ VALUES
 ('Bruno Costa', 'bruno.costa@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 
-INSERT INTO Usuarios
-(nome, email, senha)
-VALUES
-(1, 1, '2026-02-20', 18.90, 'entregue'),
-(2, 3, '2026-02-21', 24.90, 'preparando'),
-(3, 4, '2026-02-22', 15.00, 'entregue'),
-(4, 10, '2026-02-23', 79.90, 'à caminho'),
-(5, 2, '2026-02-23', 20.90, 'pedido aceito'),
-(6, 6, '2026-02-24', 6.00, 'entregue'),
-(7, 9, '2026-02-24', 17.50, 'preparando'),
-(8, 7, '2026-02-25', 8.50, 'entregue'),
-(9, 1, '2026-02-25', 18.90, 'à caminho'),
-(10, 3, '2026-02-25', 24.90, 'pedido aceito');
-
 UPDATE cliente
 SET email = 'ana.souza@email.com'
 WHERE id_cliente = 1;
@@ -156,6 +229,14 @@ WHERE id_cliente = 9;
 UPDATE cliente
 SET email = 'bruno.costa@email.com'
 WHERE id_cliente = 10;
+
+CREATE TABLE IF NOT EXISTS usuario (
+    id_usuario SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL,
+    role VARCHAR(50) DEFAULT 'user'
+);
 
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');

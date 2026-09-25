@@ -6,6 +6,13 @@ import { type Request, type Response } from "express";
 
 // Importa o tipo PedidoDTO para tipar os dados recebidos do front-end no body das requisições
 import type { PedidoDTO } from "../interface/PedidoDTO.js";
+import Produto from "../model/Produto.js";
+import {
+    MENSAGEM_PRODUTO_INDISPONIVEL,
+    produtoDisponivel,
+    statusDoPedido,
+    validarPedidoBasico
+} from "../validation/RegrasNegocio.js";
 
 // Define a classe PedidoController que HERDA da classe Pedido (extends)
 class PedidoController extends Pedido {
@@ -48,17 +55,39 @@ class PedidoController extends Pedido {
             const dadosRecebidos: PedidoDTO = req.body;
 
             if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
+                || dadosRecebidos.quantidade === undefined
                 || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
-                || !dadosRecebidos.statusPedido) {
+                || !dadosRecebidos.formaPagamento) {
                 return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: idCliente, idProduto, dataPedido, valorTotal e statusPedido."
+                    mensagem: "Campos obrigatórios ausentes: cliente, produto, data, valor e forma de pagamento."
                 });
             }
 
-            const result = await Pedido.cadastrarPedido(dadosRecebidos);
+            const erroValidacao = validarPedidoBasico(dadosRecebidos);
+            if (erroValidacao) {
+                return res.status(400).json({ mensagem: erroValidacao });
+            }
+
+            const produto = await Produto.listarProduto(dadosRecebidos.idProduto);
+            if (!produtoDisponivel(produto.disponibilidade)) {
+                return res.status(409).json({ mensagem: MENSAGEM_PRODUTO_INDISPONIVEL });
+            }
+
+            const pagamentoRealizado = dadosRecebidos.pago === true;
+            const pedido: PedidoDTO = {
+                ...dadosRecebidos,
+                statusPedido: statusDoPedido(pagamentoRealizado),
+                pago: pagamentoRealizado
+            };
+
+            const result = await Pedido.cadastrarPedido(pedido);
 
             if (result) {
-                return res.status(201).json({ mensagem: "Pedido cadastrado com sucesso." });
+                return res.status(201).json({
+                    mensagem: pagamentoRealizado
+                        ? "Seu pedido foi confirmado com sucesso."
+                        : "Estamos quase lá. Efetue o pagamento para confirmarmos o seu pedido."
+                });
             } else {
                 return res.status(400).json({ mensagem: "Não foi possível cadastrar o pedido." });
             }
@@ -119,6 +148,7 @@ class PedidoController extends Pedido {
             const dadosRecebidos: PedidoDTO = req.body;
 
             if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
+                || dadosRecebidos.quantidade === undefined
                 || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
                 || !dadosRecebidos.statusPedido) {
                 return res.status(400).json({
@@ -130,9 +160,12 @@ class PedidoController extends Pedido {
                 idPedido: idPedido,
                 idCliente: dadosRecebidos.idCliente,
                 idProduto: dadosRecebidos.idProduto,
+                quantidade: dadosRecebidos.quantidade,
                 dataPedido: dadosRecebidos.dataPedido,
                 valorTotal: dadosRecebidos.valorTotal,
-                statusPedido: dadosRecebidos.statusPedido
+                statusPedido: dadosRecebidos.statusPedido,
+                formaPagamento: dadosRecebidos.formaPagamento,
+                pago: dadosRecebidos.pago
             };
 
             const result = await Pedido.atualizarPedido(pedido);

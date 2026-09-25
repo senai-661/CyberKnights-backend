@@ -64,9 +64,14 @@ class Pedido {
             idPedido: pedido.id_pedido,
             idCliente: pedido.id_cliente,
             idProduto: pedido.id_produto,
+            nomeCliente: pedido.nome_cliente,
+            nomeProduto: pedido.nome_produto,
+            quantidade: pedido.quantidade,
             dataPedido: pedido.data_pedido,
             valorTotal: pedido.valor_total,
-            statusPedido: pedido.status_pedido
+            statusPedido: pedido.status_pedido,
+            formaPagamento: pedido.forma_pagamento,
+            pago: pedido.pago
         };
     }
 
@@ -80,7 +85,13 @@ class Pedido {
      */
     static async listarPedidos(): Promise<PedidoDTO[]> {
         try {
-            const query = `SELECT * FROM pedido ORDER BY data_pedido DESC;`;
+            const query = `
+                SELECT pedido.*, cliente.nome AS nome_cliente, produto.nome_produto
+                FROM pedido
+                INNER JOIN cliente ON cliente.id_cliente = pedido.id_cliente
+                INNER JOIN produto ON produto.id_produto = pedido.id_produto
+                ORDER BY pedido.data_pedido DESC;
+            `;
             const respostaBD = await database.query(query);
 
             return respostaBD.rows.map(Pedido.toDTO);
@@ -127,20 +138,26 @@ class Pedido {
                 INSERT INTO pedido (
                     id_cliente,
                     id_produto,
+                    quantidade,
                     data_pedido,
                     valor_total,
-                    status_pedido
+                    status_pedido,
+                    forma_pagamento,
+                    pago
                 )
-                VALUES ($1, $2, $3, $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING id_pedido;
             `;
 
             const valores = [
                 pedido.idCliente,
                 pedido.idProduto,
+                pedido.quantidade ?? 1,
                 pedido.dataPedido,
                 pedido.valorTotal,
-                pedido.statusPedido
+                pedido.statusPedido,
+                pedido.formaPagamento,
+                pedido.pago ?? false
             ];
 
             const result = await database.query(queryInsertPedido, valores);
@@ -179,18 +196,24 @@ class Pedido {
                 UPDATE pedido SET
                     id_cliente   = $1,
                     id_produto   = $2,
-                    data_pedido  = $3,
-                    valor_total  = $4,
-                    status_pedido = $5
-                WHERE id_pedido = $6
+                    quantidade   = $3,
+                    data_pedido  = $4,
+                    valor_total  = $5,
+                    status_pedido = $6,
+                    forma_pagamento = $7,
+                    pago = $8
+                WHERE id_pedido = $9
             `;
 
             const valores = [
                 pedido.idCliente,
                 pedido.idProduto,
+                pedido.quantidade ?? 1,
                 pedido.dataPedido,
                 pedido.valorTotal,
                 pedido.statusPedido,
+                pedido.formaPagamento,
+                pedido.pago ?? false,
                 pedido.idPedido
             ];
 

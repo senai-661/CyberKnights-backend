@@ -4,7 +4,7 @@
   "description": "Link para sprints\r - https://senai-661.notion.site/Sprint-s-Projeto-em-grupo-2f55d25a87a18004b223ffe0bf47330a?source=copy_link",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --test test/regras-negocio.test.ts",
     "dev": "tsx watch ./src/app.ts",
     "start": "tsx ./src/app.ts"
   },
