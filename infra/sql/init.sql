@@ -26,6 +26,14 @@ CREATE TABLE Pedido (
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
+CREATE TABLE Usuario (
+    id_usuario INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(80) NOT NULL,
+    email VARCHAR(120) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL
+);
+
     FOREIGN KEY (id_cliente)
         REFERENCES Cliente(id_cliente),
 
@@ -117,46 +125,45 @@ VALUES
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
 
-UPDATE cliente
-SET email = 'ana.souza@email.com'
-WHERE id_cliente = 1;
-
-UPDATE cliente
-SET email = 'carlos.mendes@email.com'
-WHERE id_cliente = 2;
-
-UPDATE cliente
-SET email = 'juliana.lima@email.com'
-WHERE id_cliente = 3;
-
-UPDATE cliente
-SET email = 'marcos.oliveira@email.com'
-WHERE id_cliente = 4;
-
-UPDATE cliente
-SET email = 'fernanda.rocha@email.com'
-WHERE id_cliente = 5;
-
-UPDATE cliente
-SET email = 'ricardo.alves@email.com'
-WHERE id_cliente = 6;
-
-UPDATE cliente
-SET email = 'patricia.gomes@email.com'
-WHERE id_cliente = 7;
-
-UPDATE cliente
-SET email = 'lucas.ferreira@email.com'
-WHERE id_cliente = 8;
-
-UPDATE cliente 
-SET email = 'camila.santos@email.com'
-WHERE id_cliente = 9;
-
-UPDATE cliente
-SET email = 'bruno.costa@email.com'
-WHERE id_cliente = 10;
-
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
 
+ALTER TABLE Cliente
+ADD CONSTRAINT unique_email UNIQUE (email);
+
+ALTER TABLE Produto
+ADD CONSTRAINT check_preco
+CHECK (preco >= 0);
+
+ALTER TABLE Pedido
+ADD CONSTRAINT check_status
+CHECK (status IN ('entregue', 'preparando', 'à caminho', 'pedido aceito'));
+
+CREATE OR REPLACE FUNCTION padronizar_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.status_pedido := INITCAP(LOWER(NEW.status_pedido));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_padronizar_status ON Pedido;
+
+CREATE TRIGGER trigger_padronizar_status
+BEFORE INSERT OR UPDATE ON Pedido
+FOR EACH ROW
+EXECUTE FUNCTION padronizar_status();
+
+UPDATE Pedido
+SET status_pedido = INITCAP(LOWER(status_pedido));
+
+ALTER TABLE Pedido
+ADD CONSTRAINT check_status
+CHECK (status_pedido IN (
+    'Pedido Aceito',
+    'Concluído',
+    'À Caminho',
+    'Preparando',
+    'Entregue',
+    'Pendente'
+));
