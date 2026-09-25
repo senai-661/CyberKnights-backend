@@ -79,23 +79,23 @@ class ClienteController extends Cliente {
      */
     static async cadastrar(req: Request, res: Response) {
         try {
-            const dadosRecebidos: ClienteDTO = req.body;
+            const dadosRecebidos = (req.body ?? {}) as ClienteDTO;
 
-            if (!dadosRecebidos.nome || !dadosRecebidos.endereco || !dadosRecebidos.email
-                || dadosRecebidos.telefone === undefined || dadosRecebidos.cpf === undefined) {
-                res.status(400).json({ mensagem: "Campos obrigatórios ausentes: nome, endereco, email, telefone e cpf." });
+            const erroValidacao = validarCliente(dadosRecebidos);
+            if (erroValidacao) {
+                res.status(400).json({ mensagem: erroValidacao });
                 return;
             }
 
-            const novoCliente = new Cliente(
-                dadosRecebidos.nome,
-                dadosRecebidos.endereco,
-                dadosRecebidos.telefone,
-                dadosRecebidos.cpf,
-                dadosRecebidos.email
-            );
+                const novoCliente: ClienteDTO = {
+                    nome: dadosRecebidos.nome.trim(),
+                    endereco: dadosRecebidos.endereco.trim(),
+                    telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
+                    email: dadosRecebidos.email!.trim(),
+                    ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {})
+            };
 
-            const result = await Cliente.cadastrarCliente(novoCliente as unknown as ClienteDTO);
+            const result = await Cliente.cadastrarCliente(novoCliente);
 
             if (result) {
                 res.status(201).json({ mensagem: "Cliente cadastrado com sucesso." });
@@ -164,21 +164,21 @@ class ClienteController extends Cliente {
                 return;
             }
 
-            const dadosRecebidos: ClienteDTO = req.body;
+            const dadosRecebidos = (req.body ?? {}) as ClienteDTO;
 
-            if (!dadosRecebidos.nome || !dadosRecebidos.endereco
-                || dadosRecebidos.telefone === undefined || dadosRecebidos.cpf === undefined) {
-                res.status(400).json({ mensagem: "Campos obrigatórios ausentes: nome, endereco, telefone e cpf." });
+            const erroValidacao = validarCliente(dadosRecebidos);
+            if (erroValidacao) {
+                res.status(400).json({ mensagem: erroValidacao });
                 return;
             }
 
-            const cliente: ClienteDTO = {
-                idCliente: idCliente,
-                nome: dadosRecebidos.nome,
-                endereco: dadosRecebidos.endereco,
-                telefone: dadosRecebidos.telefone,
-                cpf: dadosRecebidos.cpf,
-                ...(dadosRecebidos.email !== undefined ? { email: dadosRecebidos.email } : {})
+                const cliente: ClienteDTO = {
+                    idCliente: idCliente,
+                    nome: dadosRecebidos.nome.trim(),
+                    endereco: dadosRecebidos.endereco.trim(),
+                    telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
+                    ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {}),
+                    email: dadosRecebidos.email!.trim()
             };
 
             const result = await Cliente.atualizarCliente(cliente);
@@ -209,7 +209,7 @@ class ClienteController extends Cliente {
                 endereco,
                 telefone,
                 cpf
-            } = req.body;
+            } = req.body ?? {};
 
             // =========================
             // VALIDAÇÃO DO NOME
@@ -231,7 +231,7 @@ class ClienteController extends Cliente {
                 nome: nome.trim(),
                 endereco: endereco.trim(),
                 telefone: telefoneNormalizado,
-                ...(typeof email === "string" && email.trim() ? { email: email.trim() } : {}),
+                email: email.trim(),
                 ...(cpfNormalizado ? { cpf: cpfNormalizado } : {})
             };
 

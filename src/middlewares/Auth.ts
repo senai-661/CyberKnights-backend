@@ -36,14 +36,22 @@ export class Auth {
      */
     static async validacaoUsuario(req: Request, res: Response): Promise<any> {
         // Recupera informações do corpo da requisição
-        const { email, senha } = req.body;
+        const { email, senha } = req.body ?? {};
+
+        if (typeof email !== 'string' || !email.trim() || email.trim().length > 100
+            || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            return res.status(400).json({ message: "Informe um e-mail válido com até 100 caracteres." });
+        }
+        if (typeof senha !== 'string' || !senha.trim() || senha.length > 100) {
+            return res.status(400).json({ message: "A senha é obrigatória e deve ter até 100 caracteres." });
+        }
 
         // query para validar email e senha informados pelo cliente
         const querySelectUser = `SELECT id_usuario, nome, email, role FROM usuario WHERE email=$1 AND senha=$2;`;
 
         try {
             // faz a requisição ao banco de dados
-            const queryResult = await database.query(querySelectUser, [email, senha]);
+            const queryResult = await database.query(querySelectUser, [email.trim(), senha]);
 
             // verifica se a quantidade de linhas retornada foi diferente de 0
             // se foi, quer dizer que o email e senha fornecidos são iguais aos do banco de dados

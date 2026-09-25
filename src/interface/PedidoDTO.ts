@@ -4,7 +4,7 @@ export interface PedidoDTO {
     idProduto: number,
     nomeCliente?: string,
     nomeProduto?: string,
-    quantidade?: number,
+    quantidade: number,
     dataPedido: Date,
     valorTotal: number,
     statusPedido: string,

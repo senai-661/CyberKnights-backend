@@ -33,7 +33,6 @@ CREATE TABLE Pedido (
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
-ALTER TABLE cliente ALTER COLUMN email DROP NOT NULL;
 ALTER TABLE cliente ADD COLUMN IF NOT EXISTS status_cliente BOOLEAN NOT NULL DEFAULT TRUE;
 DO $$
 BEGIN
@@ -56,7 +55,26 @@ ALTER TABLE pedido ADD COLUMN IF NOT EXISTS pago BOOLEAN NOT NULL DEFAULT FALSE;
 
 ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
 ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
-ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120) NOT NULL DEFAULT '';
+ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120);
+
+-- Preserva registros antigos sem e-mail, atribuindo um identificador técnico antes de exigir o campo.
+UPDATE cliente
+SET email = 'sem-email+' || id_cliente || '@invalid.local'
+WHERE email IS NULL OR BTRIM(email) = '';
+UPDATE cliente SET status_cliente = TRUE WHERE status_cliente IS NULL;
+ALTER TABLE cliente ALTER COLUMN email SET NOT NULL;
+
+UPDATE pedido SET quantidade = 1 WHERE quantidade IS NULL OR quantidade <= 0;
+UPDATE pedido SET pago = FALSE WHERE pago IS NULL;
+UPDATE pedido SET status_pedido = 'Aguardando pagamento' WHERE status_pedido IS NULL OR BTRIM(status_pedido) = '';
+ALTER TABLE pedido
+    ALTER COLUMN id_cliente SET NOT NULL,
+    ALTER COLUMN id_produto SET NOT NULL,
+    ALTER COLUMN quantidade SET NOT NULL,
+    ALTER COLUMN data_pedido SET NOT NULL,
+    ALTER COLUMN valor_total SET NOT NULL,
+    ALTER COLUMN status_pedido SET NOT NULL,
+    ALTER COLUMN pago SET NOT NULL;
 
 CREATE OR REPLACE VIEW vw_pedidos_completos AS
 SELECT
@@ -82,8 +100,10 @@ FROM vw_pedidos_completos
 WHERE LOWER(nome_produto) LIKE '%indispon%';
 
 
-UPDATE produto SET cod_produto = nextval('seq_cod_produto');
-UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido');
+UPDATE produto SET cod_produto = nextval('seq_cod_produto') WHERE cod_produto IS NULL;
+UPDATE pedido SET cod_pedido = nextval('seq_cod_pedido') WHERE cod_pedido IS NULL;
+SELECT setval('seq_cod_produto', COALESCE(MAX(cod_produto), 1), MAX(cod_produto) IS NOT NULL) FROM produto;
+SELECT setval('seq_cod_pedido', COALESCE(MAX(cod_pedido), 1), MAX(cod_pedido) IS NOT NULL) FROM pedido;
 
 
 CREATE OR REPLACE FUNCTION gerar_cod_produto()
@@ -175,6 +195,41 @@ EXECUTE FUNCTION gerar_cod_pedido();
 
 ALTER TABLE produto ALTER COLUMN cod_produto SET NOT NULL;
 ALTER TABLE pedido ALTER COLUMN cod_pedido SET NOT NULL;
+
+-- CHECKs NOT VALID mantêm os registros históricos e validam todas as novas gravações/alterações.
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_nome_nao_vazio') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_nome_nao_vazio CHECK (BTRIM(nome) <> '') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_email_nao_vazio') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_email_nao_vazio CHECK (BTRIM(email) <> '') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_endereco_nao_vazio') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_endereco_nao_vazio CHECK (BTRIM(endereco) <> '') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_telefone_formato') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_telefone_formato CHECK (telefone ~ '^[0-9]{10,11}$') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'produto_nome_nao_vazio') THEN
+        ALTER TABLE produto ADD CONSTRAINT produto_nome_nao_vazio CHECK (BTRIM(nome_produto) <> '') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'produto_preco_nao_negativo') THEN
+        ALTER TABLE produto ADD CONSTRAINT produto_preco_nao_negativo CHECK (preco >= 0) NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'produto_disponibilidade_valida') THEN
+        ALTER TABLE produto ADD CONSTRAINT produto_disponibilidade_valida CHECK (LOWER(disponibilidade) IN ('disponível', 'indisponível', 'disponivel', 'indisponivel')) NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_status_nao_vazio') THEN
+        ALTER TABLE pedido ADD CONSTRAINT pedido_status_nao_vazio CHECK (BTRIM(status_pedido) <> '') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_quantidade_positiva') THEN
+        ALTER TABLE pedido ADD CONSTRAINT pedido_quantidade_positiva CHECK (quantidade > 0) NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_valor_minimo') THEN
+        ALTER TABLE pedido ADD CONSTRAINT pedido_valor_minimo CHECK (valor_total >= 15) NOT VALID;
+    END IF;
+END $$;
 
 INSERT INTO Cliente (nome, email, endereco, telefone, cpf) 
 VALUES

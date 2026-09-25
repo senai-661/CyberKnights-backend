@@ -52,20 +52,17 @@ class PedidoController extends Pedido {
      */
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const dadosRecebidos: PedidoDTO = req.body;
-
-            if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
-                || dadosRecebidos.quantidade === undefined
-                || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
-                || !dadosRecebidos.formaPagamento) {
-                return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: cliente, produto, data, valor e forma de pagamento."
-                });
-            }
+            const dadosRecebidos = (req.body ?? {}) as PedidoDTO;
 
             const erroValidacao = validarPedidoBasico(dadosRecebidos);
             if (erroValidacao) {
                 return res.status(400).json({ mensagem: erroValidacao });
+            }
+            if (typeof dadosRecebidos.formaPagamento !== "string") {
+                return res.status(400).json({ mensagem: "Selecione uma forma de pagamento válida." });
+            }
+            if (typeof dadosRecebidos.pago !== "undefined" && typeof dadosRecebidos.pago !== "boolean") {
+                return res.status(400).json({ mensagem: "O campo pago deve ser verdadeiro ou falso." });
             }
 
             const produto = await Produto.listarProduto(dadosRecebidos.idProduto);
@@ -145,15 +142,15 @@ class PedidoController extends Pedido {
                 return res.status(400).json({ mensagem: "ID inválido. Informe um número inteiro positivo." });
             }
 
-            const dadosRecebidos: PedidoDTO = req.body;
+            const dadosRecebidos = (req.body ?? {}) as PedidoDTO;
 
-            if (dadosRecebidos.idCliente === undefined || dadosRecebidos.idProduto === undefined
-                || dadosRecebidos.quantidade === undefined
-                || !dadosRecebidos.dataPedido || dadosRecebidos.valorTotal === undefined
-                || !dadosRecebidos.statusPedido) {
-                return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: idCliente, idProduto, dataPedido, valorTotal e statusPedido."
-                });
+            const erroValidacao = validarPedidoBasico(dadosRecebidos);
+            if (erroValidacao) return res.status(400).json({ mensagem: erroValidacao });
+            if (typeof dadosRecebidos.statusPedido !== "string" || !dadosRecebidos.statusPedido.trim()) {
+                return res.status(400).json({ mensagem: "O status do pedido é obrigatório." });
+            }
+            if (typeof dadosRecebidos.pago !== "undefined" && typeof dadosRecebidos.pago !== "boolean") {
+                return res.status(400).json({ mensagem: "O campo pago deve ser verdadeiro ou falso." });
             }
 
             const pedido: PedidoDTO = {
@@ -163,7 +160,7 @@ class PedidoController extends Pedido {
                 quantidade: dadosRecebidos.quantidade,
                 dataPedido: dadosRecebidos.dataPedido,
                 valorTotal: dadosRecebidos.valorTotal,
-                statusPedido: dadosRecebidos.statusPedido,
+                statusPedido: dadosRecebidos.statusPedido.trim(),
                 ...(dadosRecebidos.formaPagamento ? { formaPagamento: dadosRecebidos.formaPagamento } : {}),
                 ...(dadosRecebidos.pago !== undefined ? { pago: dadosRecebidos.pago } : {})
             };

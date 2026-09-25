@@ -1,6 +1,6 @@
 export interface ClienteDTO {
     idCliente?: number,
-    email?: string,
+    email: string,
     nome: string,
     endereco: string,
     telefone: string,

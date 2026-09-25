@@ -6,6 +6,7 @@ import { type Request, type Response } from "express";
 
 // Importa o tipo ProdutoDTO para tipar os dados recebidos do front-end no body das requisições
 import type { ProdutoDTO } from "../interface/ProdutoDTO.js";
+import { validarProduto } from "../validation/RegrasNegocio.js";
 
 // Define a classe ProdutoController que HERDA da classe Produto (extends)
 class ProdutoController extends Produto {
@@ -74,16 +75,16 @@ class ProdutoController extends Produto {
      */
     static async novo(req: Request, res: Response): Promise<Response> {
         try {
-            const dadosRecebidos: ProdutoDTO = req.body;
+            const dadosRecebidos = (req.body ?? {}) as ProdutoDTO;
 
-            if (!dadosRecebidos.nomeProduto || !Number.isFinite(dadosRecebidos.preco) || dadosRecebidos.preco < 0
-                || !["Disponível", "Indisponível", "disponível", "indisponível", "disponivel", "indisponivel"].includes(dadosRecebidos.disponibilidade)) {
-                return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: nomeProduto, preco e disponibilidade."
-                });
-            }
+            const erroValidacao = validarProduto(dadosRecebidos);
+            if (erroValidacao) return res.status(400).json({ mensagem: erroValidacao });
 
-            const result = await Produto.cadastrarProduto(dadosRecebidos);
+            const result = await Produto.cadastrarProduto({
+                ...dadosRecebidos,
+                nomeProduto: dadosRecebidos.nomeProduto.trim(),
+                disponibilidade: dadosRecebidos.disponibilidade.trim()
+            });
 
             if (result) {
                 return res.status(201).json({ mensagem: "Produto cadastrado com sucesso." });
@@ -114,20 +115,16 @@ class ProdutoController extends Produto {
                 return res.status(400).json({ mensagem: "ID inválido. Informe um número inteiro positivo." });
             }
 
-            const dadosRecebidos: ProdutoDTO = req.body;
+            const dadosRecebidos = (req.body ?? {}) as ProdutoDTO;
 
-            if (!dadosRecebidos.nomeProduto || !Number.isFinite(dadosRecebidos.preco) || dadosRecebidos.preco < 0
-                || !["Disponível", "Indisponível", "disponível", "indisponível", "disponivel", "indisponivel"].includes(dadosRecebidos.disponibilidade)) {
-                return res.status(400).json({
-                    mensagem: "Campos obrigatórios ausentes: nomeProduto, preco e disponibilidade."
-                });
-            }
+            const erroValidacao = validarProduto(dadosRecebidos);
+            if (erroValidacao) return res.status(400).json({ mensagem: erroValidacao });
 
             const produto: ProdutoDTO = {
                 idProduto: idProduto,
-                nomeProduto: dadosRecebidos.nomeProduto,
+                nomeProduto: dadosRecebidos.nomeProduto.trim(),
                 preco: dadosRecebidos.preco,
-                disponibilidade: dadosRecebidos.disponibilidade
+                disponibilidade: dadosRecebidos.disponibilidade.trim()
             };
 
             const result = await Produto.atualizarProduto(produto);
