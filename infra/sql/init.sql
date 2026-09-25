@@ -266,3 +266,117 @@ CREATE TRIGGER trg_primeira_letra_disponibilidade
 BEFORE INSERT OR UPDATE ON Produto
 FOR EACH ROW
 EXECUTE FUNCTION fn_primeira_letra_disponibilidade();
+
+CREATE OR REPLACE PROCEDURE sp_registrar_movimentacao(
+    p_id_produto INTEGER,
+    p_tipo VARCHAR(10),
+    p_motivo VARCHAR(20),
+    p_quantidade INTEGER,
+    p_preco_unitario_praticado NUMERIC(10, 2),
+    p_valor_total NUMERIC(12, 2),
+    p_observacao VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_produto_ativo BOOLEAN;
+BEGIN
+
+    -- Verifica se o produto existe e está ativo.
+    SELECT ativo
+    INTO v_produto_ativo
+    FROM produto
+    WHERE id_produto = p_id_produto;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Produto não encontrado.';
+    END IF;
+
+    IF v_produto_ativo = FALSE THEN
+        RAISE EXCEPTION 'Não é possível movimentar um produto desativado.';
+    END IF;
+
+    -- A quantidade deve ser maior que zero.
+    IF p_quantidade <= 0 THEN
+        RAISE EXCEPTION 'A quantidade deve ser maior que zero.';
+    END IF;
+
+    -- Valida o tipo da movimentação.
+    IF p_tipo NOT IN ('ENTRADA', 'SAIDA') THEN
+        RAISE EXCEPTION 'Tipo de movimentação inválido.';
+    END IF;
+
+    -- Valida o motivo da movimentação.
+    IF p_motivo NOT IN (
+        'RECEBIMENTO',
+        'VENDA',
+        'USO_INTERNO',
+        'PERDA',
+        'DANIFICADO',
+        'CORRECAO'
+    ) THEN
+        RAISE EXCEPTION 'Motivo de movimentação inválido.';
+    END IF;
+
+    -- Venda precisa ser uma saída.
+    IF p_motivo = 'VENDA' AND p_tipo <> 'SAIDA' THEN
+        RAISE EXCEPTION 'Uma venda deve ser uma movimentação de saída.';
+    END IF;
+
+    -- Venda precisa possuir preço e valor total.
+    IF p_motivo = 'VENDA' THEN
+
+        IF p_preco_unitario_praticado IS NULL THEN
+            RAISE EXCEPTION 'Venda deve possuir preço unitário.';
+        END IF;
+
+        IF p_valor_total IS NULL THEN
+            RAISE EXCEPTION 'Venda deve possuir valor total.';
+        END IF;
+
+        IF p_valor_total <> p_quantidade * p_preco_unitario_praticado THEN
+            RAISE EXCEPTION 'O valor total da venda está incorreto.';
+        END IF;
+
+    END IF;
+
+    -- Os demais tipos não devem possuir dados financeiros.
+    IF p_motivo <> 'VENDA' THEN
+
+        IF p_preco_unitario_praticado IS NOT NULL
+           OR p_valor_total IS NOT NULL THEN
+            RAISE EXCEPTION
+                'Somente vendas podem possuir preço unitário e valor total.';
+        END IF;
+
+    END IF;
+
+    -- Observação obrigatória.
+    IF TRIM(p_observacao) = '' THEN
+        RAISE EXCEPTION 'A observação é obrigatória.';
+    END IF;
+
+    -- Insere a movimentação.
+    -- O trigger tg_atualizar_estoque será acionado
+    -- automaticamente e atualizará o estoque do produto.
+    INSERT INTO movimentacao (
+        id_produto,
+        tipo,
+        motivo,
+        quantidade,
+        preco_unitario_praticado,
+        valor_total,
+        observacao
+    )
+    VALUES (
+        p_id_produto,
+        p_tipo,
+        p_motivo,
+        p_quantidade,
+        p_preco_unitario_praticado,
+        p_valor_total,
+        TRIM(p_observacao)
+    );
+
+END;
+$$;
