@@ -1,16 +1,8 @@
-// Importa o tipo PedidoDTO, que define a "forma" dos dados de um pedido (como um molde/contrato)
 import type { PedidoDTO } from "../interface/PedidoDTO.js";
-
-// Importa a classe DatabaseModel, responsável por gerenciar a conexão com o banco de dados
 import { DatabaseModel } from "./DatabaseModel.js";
-
-// Cria uma instância do DatabaseModel e acessa o pool de conexões com o banco de dados
 const database = new DatabaseModel().pool;
 
-// Define a classe Pedido, que representa a entidade pedido no sistema
 class Pedido {
-
-    // ==================== ATRIBUTOS PRIVADOS ====================
     private idPedido: number = 0;
     private idCliente: number;
     private idProduto: number;
@@ -18,7 +10,6 @@ class Pedido {
     private valorTotal: number;
     private statusPedido: string;
 
-    // ==================== CONSTRUTOR ====================
     constructor(
         _idCliente: number,
         _idProduto: number,
@@ -33,7 +24,6 @@ class Pedido {
         this.statusPedido = _statusPedido;
     }
 
-    // ==================== GETTERS E SETTERS ====================
     public getIdPedido(): number { return this.idPedido; }
     public setIdPedido(_idPedido: number): void { this.idPedido = _idPedido; }
 
@@ -52,7 +42,6 @@ class Pedido {
     public getStatusPedido(): string { return this.statusPedido; }
     public setStatusPedido(_statusPedido: string): void { this.statusPedido = _statusPedido; }
 
-    // ==================== MÉTODO PRIVADO: toDTO ====================
     /**
      * Converte uma linha bruta retornada pelo banco de dados em um objeto PedidoDTO estruturado.
      *
@@ -69,8 +58,6 @@ class Pedido {
             statusPedido: pedido.status_pedido
         };
     }
-
-    // ==================== MÉTODOS ESTÁTICOS (acesso ao banco de dados) ====================
 
     /**
      * Busca e retorna todos os pedidos cadastrados no banco de dados, ordenados por data (mais recentes primeiro).
@@ -91,7 +78,6 @@ class Pedido {
     }
 
     /**
-     * Busca e retorna os dados de um pedido específico pelo seu ID.
      *
      * @param idPedido Identificador único do pedido no banco de dados.
      * @returns Promise com PedidoDTO contendo os dados do pedido encontrado.
@@ -115,7 +101,6 @@ class Pedido {
     }
 
     /**
-     * Cadastra um novo pedido no banco de dados.
      *
      * @param pedido Objeto PedidoDTO contendo os dados a serem cadastrados.
      * @returns Promise com true se o cadastro foi realizado com sucesso.
@@ -158,8 +143,6 @@ class Pedido {
     }
 
     /**
-     * Atualiza os dados de um pedido existente no banco de dados.
-     * Verifica se o pedido existe antes de executar o UPDATE.
      *
      * @param pedido Objeto PedidoDTO com os novos dados. O atributo idPedido deve estar
      *               preenchido para identificar qual registro será atualizado no banco.
@@ -204,7 +187,6 @@ class Pedido {
     }
 
     /**
-     * Remove um pedido do banco de dados pelo ID.
      *
      * @param idPedido ID do pedido a ser removido.
      * @returns Promise com true se a remoção foi bem-sucedida.
@@ -226,7 +208,6 @@ class Pedido {
     }
 
     /**
-     * Busca pedidos com status "baixo" através da view vw_pedidos_completos_baixo.
      *
      * @returns Promise com array de objetos retornados pela view.
      * @throws Error se ocorrer falha na consulta ao banco de dados.
@@ -243,7 +224,6 @@ class Pedido {
     }
 
     /**
-     * Busca todos os pedidos com informações completas através da view vw_pedidos_completos.
      *
      * @returns Promise com array de objetos retornados pela view.
      * @throws Error se ocorrer falha na consulta ao banco de dados.
@@ -260,13 +240,12 @@ class Pedido {
     }
 
     /**
-     * Busca todos os pedidos com informações detalhadas da view vw_pedidos_completos.
      *
      * @returns Promise com array de objetos retornados pela view.
      */
     static async listarPedidosDetalhados(): Promise<Array<any>> {
         try {
-            const querySelectView = `SELECT * FROM vw_pedidos_completos;`;
+            const querySelectView = `SELECT * FROM vw_pedidos_detalhados;`;
             const respostaBD = await database.query(querySelectView);
             return respostaBD.rows;
         } catch (error) {
