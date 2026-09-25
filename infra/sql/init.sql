@@ -21,7 +21,7 @@ CREATE TABLE Pedido (
     id_produto INT NOT NULL,
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
-    status VARCHAR (15) NOT NULL,
+    status_pedido VARCHAR (15) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
@@ -111,8 +111,8 @@ VALUES
 ('Bruno Costa', 'bruno.costa@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 
-INSERT INTO Usuarios
-(nome, email, senha)
+INSERT INTO Pedido
+(id_cliente, id_produto, data_pedido, valor_total, status_pedido)
 VALUES
 (1, 1, '2026-02-20', 18.90, 'entregue'),
 (2, 3, '2026-02-21', 24.90, 'preparando'),
@@ -124,6 +124,22 @@ VALUES
 (8, 7, '2026-02-25', 8.50, 'entregue'),
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
+
+INSERT INTO Produto (nome_produto, preco, disponibilidade, cod_produto)
+VALUES
+('X-Burger', 18.90, 'disponível', 11),
+('X-Salada', 20.90, 'disponível', 12),
+('X-Bacon', 24.90, 'disponível', 13),
+('Batata Frita Média', 15.00, 'disponível', 14),
+('BATATA FRITA GRANDE', 67.00, 'disponível', 15),
+('Refrigerante Lata', 6.00, 'disponível', 16),
+('Suco Natural', 8.50, 'disponível', 17),
+('Milkshake Chocolate', 16.00, 'indisponível', 18),
+('Hot Dog Especial', 17.50, 'disponível', 20),
+('Combo Família', 79.90, 'disponível', 22),
+('X-TUDO ESPECIAL', 25.90, 'disponível', 24),
+('X EGG SALADA', 22.90, 'Disponível', 25),
+('X BIG DA CASA', 27.99, 'Disponível', 26);
 
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
@@ -167,3 +183,86 @@ CHECK (status_pedido IN (
     'Entregue',
     'Pendente'
 ));
+
+CREATE OR REPLACE FUNCTION fn_primeira_letra_maiuscula()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.nome_produto :=
+        UPPER(LEFT(TRIM(NEW.nome_produto), 1)) ||
+        SUBSTRING(TRIM(NEW.nome_produto) FROM 2);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_primeira_letra_maiuscula
+BEFORE INSERT OR UPDATE ON Produto
+FOR EACH ROW
+EXECUTE FUNCTION fn_primeira_letra_maiuscula();
+
+UPDATE Produto
+SET nome_produto =
+    UPPER(LEFT(TRIM(nome_produto), 1)) ||
+    SUBSTRING(TRIM(nome_produto) FROM 2);
+
+    UPDATE Produto
+SET nome_produto =
+    UPPER(LEFT(LOWER(TRIM(nome_produto)), 1)) ||
+    SUBSTRING(LOWER(TRIM(nome_produto)) FROM 2);
+
+    UPDATE Cliente
+SET nome =
+    UPPER(LEFT(LOWER(TRIM(nome)), 1)) ||
+    SUBSTRING(LOWER(TRIM(nome)) FROM 2);
+
+    CREATE OR REPLACE FUNCTION fn_primeira_letra_nome_cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.nome :=
+        UPPER(LEFT(LOWER(TRIM(NEW.nome)), 1)) ||
+        SUBSTRING(LOWER(TRIM(NEW.nome)) FROM 2);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_primeira_letra_nome_cliente
+BEFORE INSERT OR UPDATE ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION fn_primeira_letra_nome_cliente();
+
+UPDATE Cliente
+SET endereco = INITCAP(TRIM(endereco));
+
+CREATE OR REPLACE FUNCTION fn_primeira_letra_endereco_cliente()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.endereco := INITCAP(TRIM(NEW.endereco));
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_primeira_letra_endereco_cliente
+BEFORE INSERT OR UPDATE ON Cliente
+FOR EACH ROW
+EXECUTE FUNCTION fn_primeira_letra_endereco_cliente();
+
+UPDATE Produto
+SET disponibilidade =
+    UPPER(LEFT(LOWER(TRIM(disponibilidade)), 1)) ||
+    SUBSTRING(LOWER(TRIM(disponibilidade)) FROM 2);
+
+    CREATE OR REPLACE FUNCTION fn_primeira_letra_disponibilidade()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.disponibilidade :=
+        UPPER(LEFT(LOWER(TRIM(NEW.disponibilidade)), 1)) ||
+        SUBSTRING(LOWER(TRIM(NEW.disponibilidade)) FROM 2);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_primeira_letra_disponibilidade
+BEFORE INSERT OR UPDATE ON Produto
+FOR EACH ROW
+EXECUTE FUNCTION fn_primeira_letra_disponibilidade();
