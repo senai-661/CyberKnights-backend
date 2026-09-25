@@ -189,10 +189,10 @@ class Cliente {
                 UPDATE cliente SET
                     nome = $1,
                     endereco = $2,
-                    email = $3,
+                    email    = $3,
                     telefone = $4,
-                    cpf = $5
-                WHERE id_cliente = $6;
+                    cpf      = $5
+                WHERE id_cliente = $6
             `;
 
             const valores = [
