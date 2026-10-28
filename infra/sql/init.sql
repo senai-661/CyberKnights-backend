@@ -9,16 +9,9 @@ CREATE TABLE Cliente (
 
 CREATE TABLE Produto (
     id_produto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-<<<<<<< HEAD
     nome_produto VARCHAR (80) NOT NULL,
     preco DECIMAL (10,2) NOT NULL,
     disponibilidade VARCHAR (12) NOT NULL
-=======
-    nome_produto VARCHAR(80) NOT NULL,
-    preco DECIMAL(10,2) NOT NULL,
-    disponibilidade VARCHAR(12) NOT NULL,
-    cod_produto INTEGER NOT NULL
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 );
 
 CREATE TABLE Pedido (
@@ -27,33 +20,28 @@ CREATE TABLE Pedido (
     id_produto INT NOT NULL,
     data_pedido DATE NOT NULL,
     valor_total DECIMAL (10,2) NOT NULL,
-    status VARCHAR (15) NOT NULL,
+    status_pedido VARCHAR (15) NOT NULL,
     FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
     FOREIGN KEY (id_produto) REFERENCES Produto (id_produto)
 );
 
-<<<<<<< HEAD
+CREATE TABLE Usuario (
+    id_usuario INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(80) NOT NULL,
+    email VARCHAR(120) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL
+);
+
 
 CREATE SEQUENCE IF NOT EXISTS seq_cod_produto START 1;
 CREATE SEQUENCE IF NOT EXISTS seq_cod_pedido START 1;
 
 
-=======
-    FOREIGN KEY (id_cliente)
-        REFERENCES Cliente(id_cliente),
-
-    FOREIGN KEY (id_produto)
-        REFERENCES Produto(id_produto)
-);
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 ALTER TABLE Produto ADD COLUMN IF NOT EXISTS cod_produto INT;
 ALTER TABLE Pedido ADD COLUMN IF NOT EXISTS cod_pedido INT;
 ALTER TABLE Cliente ADD COLUMN IF NOT EXISTS email VARCHAR(120) NOT NULL DEFAULT '';
-<<<<<<< HEAD
-
-=======
->>>>>>> d1cbbe12624f239b81863a000dcb8c8e8d63269d
 
 
 UPDATE produto SET cod_produto = nextval('seq_cod_produto');
@@ -121,8 +109,8 @@ VALUES
 ('Bruno Costa', 'bruno.costa@email.com', 'Rua das Acácias, 400 - Vila Atlântica', '13991100998', '01234567890');
 
 
-INSERT INTO Usuarios
-(nome, email, senha)
+INSERT INTO Pedido
+(id_cliente, id_produto, data_pedido, valor_total, status_pedido)
 VALUES
 (1, 1, '2026-02-20', 18.90, 'entregue'),
 (2, 3, '2026-02-21', 24.90, 'preparando'),
@@ -135,6 +123,46 @@ VALUES
 (9, 1, '2026-02-25', 18.90, 'à caminho'),
 (10, 3, '2026-02-25', 24.90, 'pedido aceito');
 
+UPDATE cliente
+SET email = 'ana.souza@email.com'
+WHERE id_cliente = 1;
+
+UPDATE cliente
+SET email = 'carlos.mendes@email.com'
+WHERE id_cliente = 2;
+
+UPDATE cliente
+SET email = 'juliana.lima@email.com'
+WHERE id_cliente = 3;
+
+UPDATE cliente
+SET email = 'marcos.oliveira@email.com'
+WHERE id_cliente = 4;
+
+UPDATE cliente
+SET email = 'fernanda.rocha@email.com'
+WHERE id_cliente = 5;
+
+UPDATE cliente
+SET email = 'ricardo.alves@email.com'
+WHERE id_cliente = 6;
+
+UPDATE cliente
+SET email = 'patricia.gomes@email.com'
+WHERE id_cliente = 7;
+
+UPDATE cliente
+SET email = 'lucas.ferreira@email.com'
+WHERE id_cliente = 8;
+
+UPDATE cliente 
+SET email = 'camila.santos@email.com'
+WHERE id_cliente = 9;
+
+UPDATE cliente
+SET email = 'bruno.costa@email.com'
+WHERE id_cliente = 10;
 
 INSERT INTO usuario (nome, email, senha, role)
 VALUES ('Admin', 'admin@email.com', '1234', 'admin');
+
