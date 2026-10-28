@@ -132,6 +132,11 @@ DECLARE
     v_id_pedido INTEGER;
     v_disponibilidade VARCHAR(12);
 BEGIN
+    IF p_id_cliente IS NULL OR p_id_produto IS NULL OR p_data_pedido IS NULL
+        OR p_valor_total IS NULL OR p_forma_pagamento IS NULL OR p_pago IS NULL THEN
+        RAISE EXCEPTION 'Preencha todos os campos obrigatórios do pedido.';
+    END IF;
+
     IF p_valor_total < 15 THEN
         RAISE EXCEPTION 'Pedido não finalizado. O valor mínimo para pedidos é de R$15,00.';
     END IF;
@@ -141,7 +146,8 @@ BEGIN
     WHERE id_produto = p_id_produto;
 
     IF NOT FOUND OR LOWER(v_disponibilidade) NOT IN ('disponível', 'disponivel') THEN
-        RAISE EXCEPTION 'Produto indisponível no momento. Por favor, escolha outro item do cardápio.';
+        RAISE EXCEPTION 'Produto indisponível no mom
+        ento. Por favor, escolha outro item do cardápio.';
     END IF;
 
     IF p_forma_pagamento NOT IN ('dinheiro', 'cartao', 'pix') THEN
@@ -205,11 +211,17 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_email_nao_vazio') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_email_nao_vazio CHECK (BTRIM(email) <> '') NOT VALID;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_email_formato') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_email_formato CHECK (email ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$') NOT VALID;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_endereco_nao_vazio') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_endereco_nao_vazio CHECK (BTRIM(endereco) <> '') NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_telefone_formato') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_telefone_formato CHECK (telefone ~ '^[0-9]{10,11}$') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_cpf_formato') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_cpf_formato CHECK (cpf IS NULL OR cpf ~ '^[0-9]{11}$') NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'produto_nome_nao_vazio') THEN
         ALTER TABLE produto ADD CONSTRAINT produto_nome_nao_vazio CHECK (BTRIM(nome_produto) <> '') NOT VALID;
@@ -225,6 +237,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_quantidade_positiva') THEN
         ALTER TABLE pedido ADD CONSTRAINT pedido_quantidade_positiva CHECK (quantidade > 0) NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_forma_pagamento_valida') THEN
+        ALTER TABLE pedido ADD CONSTRAINT pedido_forma_pagamento_valida CHECK (forma_pagamento IS NULL OR forma_pagamento IN ('dinheiro', 'cartao', 'pix')) NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_valor_minimo') THEN
         ALTER TABLE pedido ADD CONSTRAINT pedido_valor_minimo CHECK (valor_total >= 15) NOT VALID;

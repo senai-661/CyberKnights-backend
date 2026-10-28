@@ -46,7 +46,10 @@ export function validarPedidoBasico(dados: {
     const dataRecebida = typeof dados.dataPedido === "string" || dados.dataPedido instanceof Date
         ? dados.dataPedido
         : undefined;
-    const dataValida = dataRecebida !== undefined && !Number.isNaN(new Date(dataRecebida).getTime());
+    const dataConvertida = dataRecebida === undefined ? null : new Date(dataRecebida);
+    const dataSomenteData = typeof dataRecebida === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dataRecebida);
+    const dataValida = dataConvertida !== null && !Number.isNaN(dataConvertida.getTime())
+        && (!dataSomenteData || dataConvertida.toISOString().slice(0, 10) === dataRecebida);
     const valorTotal = typeof dados.valorTotal === "number" ? dados.valorTotal : Number.NaN;
 
     if (typeof dados.idCliente !== "number" || !Number.isInteger(dados.idCliente) || dados.idCliente <= 0

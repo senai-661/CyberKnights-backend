@@ -35,6 +35,7 @@ test("aceita pedido com valor mínimo e forma de pagamento válida", () => {
         assert.notEqual(validarPedidoBasico({ idCliente: 1, idProduto: 1, dataPedido: "2026-09-25", valorTotal: 15 }), null);
         assert.notEqual(validarPedidoBasico({ idCliente: 1, idProduto: 1, quantidade: 0, dataPedido: "2026-09-25", valorTotal: 15, formaPagamento: "pix" }), null);
         assert.notEqual(validarPedidoBasico({ idCliente: 1, idProduto: 1, quantidade: 1, dataPedido: "não é data", valorTotal: 15, formaPagamento: "pix" }), null);
+        assert.notEqual(validarPedidoBasico({ idCliente: 1, idProduto: 1, quantidade: 1, dataPedido: "2026-02-30", valorTotal: 15, formaPagamento: "pix" }), null);
         assert.notEqual(validarPedidoBasico({ idCliente: 1, idProduto: 1, quantidade: 1, dataPedido: "2026-09-25", valorTotal: 100000000, formaPagamento: "pix" }), null);
     });
 

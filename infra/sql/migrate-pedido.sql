@@ -107,11 +107,17 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_email_nao_vazio') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_email_nao_vazio CHECK (BTRIM(email) <> '') NOT VALID;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_email_formato') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_email_formato CHECK (email ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$') NOT VALID;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_endereco_nao_vazio') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_endereco_nao_vazio CHECK (BTRIM(endereco) <> '') NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_telefone_formato') THEN
         ALTER TABLE cliente ADD CONSTRAINT cliente_telefone_formato CHECK (telefone ~ '^[0-9]{10,11}$') NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'cliente_cpf_formato') THEN
+        ALTER TABLE cliente ADD CONSTRAINT cliente_cpf_formato CHECK (cpf IS NULL OR cpf ~ '^[0-9]{11}$') NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'produto_nome_nao_vazio') THEN
         ALTER TABLE produto ADD CONSTRAINT produto_nome_nao_vazio CHECK (BTRIM(nome_produto) <> '') NOT VALID;
@@ -127,6 +133,9 @@ BEGIN
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_quantidade_positiva') THEN
         ALTER TABLE pedido ADD CONSTRAINT pedido_quantidade_positiva CHECK (quantidade > 0) NOT VALID;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_forma_pagamento_valida') THEN
+        ALTER TABLE pedido ADD CONSTRAINT pedido_forma_pagamento_valida CHECK (forma_pagamento IS NULL OR forma_pagamento IN ('dinheiro', 'cartao', 'pix')) NOT VALID;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pedido_valor_minimo') THEN
         ALTER TABLE pedido ADD CONSTRAINT pedido_valor_minimo CHECK (valor_total >= 15) NOT VALID;

@@ -73,7 +73,7 @@ class ClienteController extends Cliente {
      * Cadastra um novo cliente no sistema com os dados recebidos no corpo da requisição.
      * Valida campos obrigatórios antes de persistir no banco de dados.
      *
-     * @param req Objeto de requisição HTTP. Espera no body: nome, endereco, email, telefone, cpf (obrigatórios).
+    * @param req Objeto de requisição HTTP. Espera nome, endereco, email e telefone obrigatórios; CPF opcional.
      * @param res Objeto de resposta HTTP.
      * @returns 201 se cadastrado com sucesso | 400 se campos obrigatórios ausentes ou falha no cadastro | 500 em caso de erro interno.
      */
@@ -87,12 +87,12 @@ class ClienteController extends Cliente {
                 return;
             }
 
-                const novoCliente: ClienteDTO = {
-                    nome: dadosRecebidos.nome.trim(),
-                    endereco: dadosRecebidos.endereco.trim(),
-                    telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
-                    email: dadosRecebidos.email!.trim(),
-                    ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {})
+            const novoCliente: ClienteDTO = {
+                nome: dadosRecebidos.nome.trim(),
+                endereco: dadosRecebidos.endereco.trim(),
+                telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
+                email: dadosRecebidos.email!.trim(),
+                ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {})
             };
 
             const result = await Cliente.cadastrarCliente(novoCliente);
@@ -150,8 +150,7 @@ class ClienteController extends Cliente {
      * Atualiza os dados cadastrais de um cliente existente no sistema.
      * Valida o ID na URL e os campos obrigatórios no body antes de persistir no banco.
      *
-     * @param req Objeto de requisição HTTP. Espera o parâmetro "id" na URL e no body: nome,
-     *            endereco, email, telefone e cpf (obrigatórios).
+    * @param req Objeto de requisição HTTP. Espera nome, endereco, email e telefone obrigatórios; CPF opcional.
      * @param res Objeto de resposta HTTP.
      * @returns 200 se atualizado com sucesso | 400 se o ID ou campos forem inválidos | 404 se não encontrado ou inativo | 500 em caso de erro interno.
      */
@@ -172,13 +171,13 @@ class ClienteController extends Cliente {
                 return;
             }
 
-                const cliente: ClienteDTO = {
-                    idCliente: idCliente,
-                    nome: dadosRecebidos.nome.trim(),
-                    endereco: dadosRecebidos.endereco.trim(),
-                    telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
-                    ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {}),
-                    email: dadosRecebidos.email!.trim()
+            const cliente: ClienteDTO = {
+                idCliente: idCliente,
+                nome: dadosRecebidos.nome.trim(),
+                endereco: dadosRecebidos.endereco.trim(),
+                telefone: String(dadosRecebidos.telefone).replace(/\D/g, ""),
+                ...(dadosRecebidos.cpf ? { cpf: String(dadosRecebidos.cpf).replace(/\D/g, "") } : {}),
+                email: dadosRecebidos.email!.trim()
             };
 
             const result = await Cliente.atualizarCliente(cliente);
