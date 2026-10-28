@@ -110,6 +110,20 @@ class Produto {
      */
     static async cadastrarProduto(produto: ProdutoDTO): Promise<boolean> {
         try {
+            const produtoExistente = await database.query(
+                `SELECT 1
+                 FROM produto
+                 WHERE LOWER(TRIM(nome_produto)) = LOWER(TRIM($1))
+                   AND preco = $2
+                   AND LOWER(TRIM(disponibilidade)) = LOWER(TRIM($3))
+                 LIMIT 1`,
+                [produto.nomeProduto, produto.preco, produto.disponibilidade]
+            );
+
+            if (produtoExistente.rowCount) {
+                throw new Error("Este produto já está cadastrado com os mesmos dados.");
+            }
+
             const queryInsertProduto = `
                 INSERT INTO produto (
                     nome_produto,
@@ -191,10 +205,15 @@ class Produto {
      */
     static async removerProduto(idProduto: number): Promise<boolean> {
         try {
-            // Garante que o produto existe — lança "não encontrado" automaticamente se não existir
-            await Produto.listarProduto(idProduto);
-
-            const queryDelete = `DELETE FROM produto WHERE id_produto = $1`;
+            const queryDelete = `
+                WITH pedidos_removidos AS (
+                    DELETE FROM pedido
+                    WHERE id_produto = $1
+                    RETURNING id_pedido
+                )
+                DELETE FROM produto
+                WHERE id_produto = $1;
+            `;
             const respostaBD = await database.query(queryDelete, [idProduto]);
 
             return (respostaBD.rowCount ?? 0) > 0;

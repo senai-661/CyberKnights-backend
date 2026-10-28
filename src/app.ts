@@ -1,26 +1,26 @@
-import { server } from "./server.js";
+import 'dotenv/config';
 import { DatabaseModel } from "./model/DatabaseModel.js";
+import { server } from "./server.js";
 
-const port: number = 3333;
-const database = new DatabaseModel();
-
-async function startServer() {
-    const connected = await database.testeConexao();
-    if (!connected) {
-        console.error('Não foi possível conectar ao banco de dados');
-        return;
+// Pega porta com segurança: Render -> SERVER_PORT -> 3000
+function getPort(): number {
+    const candidates = [process.env.PORT, process.env.SERVER_PORT, '3000'];
+    for (const raw of candidates) {
+        if (!raw) continue;
+        const n = Number(raw);
+        if (Number.isFinite(n) && n >= 0 && n < 65536) return n;
     }
-
-    try {
-        await database.ensureUsuarioTable();
-    } catch (error) {
-        console.error('Falha ao garantir esquema de banco de dados:', error);
-        return;
-    }
-
-    server.listen(port, () => {
-        console.log(`Servidor rodando em http://localhost:${port}`);
-    });
+    return 3000;
 }
 
-startServer();
+const port = getPort();
+
+new DatabaseModel().testeConexao().then((ok) => {
+    if (ok) {
+        server.listen(port, '0.0.0.0', () => {
+            console.log(`Servidor rodando na porta ${port}`);
+        });
+    } else {
+        console.log('Não foi possível conectar ao banco de dados');
+    }
+});

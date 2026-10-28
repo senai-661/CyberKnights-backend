@@ -123,19 +123,7 @@ export class Auth {
      * @returns Token validado ou erro
      */
     static verifyToken(req: Request, res: Response, next: NextFunction) {
-        const rawHeaderToken = typeof req.headers.authorization === 'string'
-            ? req.headers.authorization
-            : Array.isArray(req.headers.authorization)
-                ? req.headers.authorization[0]
-                : null;
-
-        const headerToken = rawHeaderToken ? rawHeaderToken.replace(/^Bearer\s+/i, '').trim() : null;
-
-        const legacyToken = Array.isArray(req.headers['x-access-token'])
-            ? req.headers['x-access-token'][0]
-            : req.headers['x-access-token'];
-
-        const token = (headerToken || legacyToken || '').trim();
+        const token = req.headers['x-access-token'] as string;
 
         if (!token) {
             console.log('Token não informado');

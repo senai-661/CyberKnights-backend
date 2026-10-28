@@ -92,6 +92,9 @@ class ProdutoController extends Produto {
 
         } catch (error) {
             console.error(`[ProdutoController] Erro ao cadastrar produto:`, error);
+            if (error instanceof Error && error.message.includes("já está cadastrado")) {
+                return res.status(409).json({ mensagem: error.message });
+            }
             return res.status(500).json({ mensagem: "Não foi possível inserir o produto." });
         }
     }
@@ -180,6 +183,7 @@ class ProdutoController extends Produto {
             return res.status(500).json({ mensagem: "Não foi possível remover o produto." });
         }
     }
+
 }
 
 export default ProdutoController;

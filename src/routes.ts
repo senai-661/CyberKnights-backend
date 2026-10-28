@@ -21,7 +21,7 @@ router.get('/api/protegido', (req: Request, res: Response) => {
 
 router.get(`/api/cliente`, ClienteController.todos);
 router.post(`/api/cliente`, ClienteController.novo);
-router.get(`/api/cliente/:idCliente`, ClienteController.id);
+router.get(`/api/cliente/:idCliente`, ClienteController.cliente);
 router.put(`/api/cliente/:idCliente`, ClienteController.atualizar);
 router.patch(`/api/cliente/:idCliente`, ClienteController.atualizar);
 router.delete(`/api/cliente/:idCliente`, ClienteController.remover);

@@ -14,7 +14,6 @@ class ClienteController extends Cliente {
             }
 
             res.status(200).json(listaDeClientes);
-
         } catch (error) {
             console.error(`[ClienteController] Erro ao listar clientes:`, error);
             res.status(500).json({
@@ -376,6 +375,7 @@ class ClienteController extends Cliente {
             });
         }
     }
+
 }
 
 export default ClienteController;
