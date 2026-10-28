@@ -7,7 +7,7 @@ const server = express();
 
 const origensPermitidas = [
   "http://localhost:5173",
-  "https://deployando-r7f2d8sfj-cyberknights.vercel.app",
+  "https://deployando-git-main-cyberknights.vercel.app/",
 ];
 
 const corsOptions = {
